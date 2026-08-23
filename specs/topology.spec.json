@@ -68,10 +68,90 @@
   },
   "cloudPublicHosts": {
     "application.public-ingress": {
-      "httpHost": "browser.sdkwork.com"
+      "httpHost": "browser.sdkwork.com",
+      "environments": {
+        "development": {
+          "httpHosts": [
+            "browser-dev.sdkwork.com",
+            "browser-dev.birdcoder.com",
+            "browser-dev.dtupay.com",
+            "browser-dev.sdkwork.cn",
+            "browser-dev.birdcoder.cn",
+            "browser-dev.dtupay.cn"
+          ]
+        },
+        "test": {
+          "httpHosts": [
+            "browser-test.sdkwork.com",
+            "browser-test.birdcoder.com",
+            "browser-test.dtupay.com",
+            "browser-test.sdkwork.cn",
+            "browser-test.birdcoder.cn",
+            "browser-test.dtupay.cn"
+          ]
+        },
+        "staging": {
+          "httpHosts": [
+            "browser-staging.sdkwork.com",
+            "browser-staging.birdcoder.com",
+            "browser-staging.dtupay.com",
+            "browser-staging.sdkwork.cn",
+            "browser-staging.birdcoder.cn",
+            "browser-staging.dtupay.cn"
+          ]
+        }
+      },
+      "httpHosts": [
+        "browser.sdkwork.com",
+        "browser.birdcoder.com",
+        "browser.dtupay.com",
+        "browser.sdkwork.cn",
+        "browser.birdcoder.cn",
+        "browser.dtupay.cn"
+      ]
     },
     "platform.api-gateway": {
-      "httpHost": "api.sdkwork.com"
+      "httpHost": "api.sdkwork.com",
+      "environments": {
+        "development": {
+          "httpHosts": [
+            "api-dev.sdkwork.com",
+            "api-dev.birdcoder.com",
+            "api-dev.dtupay.com",
+            "api-dev.sdkwork.cn",
+            "api-dev.birdcoder.cn",
+            "api-dev.dtupay.cn"
+          ]
+        },
+        "test": {
+          "httpHosts": [
+            "api-test.sdkwork.com",
+            "api-test.birdcoder.com",
+            "api-test.dtupay.com",
+            "api-test.sdkwork.cn",
+            "api-test.birdcoder.cn",
+            "api-test.dtupay.cn"
+          ]
+        },
+        "staging": {
+          "httpHosts": [
+            "api-staging.sdkwork.com",
+            "api-staging.birdcoder.com",
+            "api-staging.dtupay.com",
+            "api-staging.sdkwork.cn",
+            "api-staging.birdcoder.cn",
+            "api-staging.dtupay.cn"
+          ]
+        }
+      },
+      "httpHosts": [
+        "api.sdkwork.com",
+        "api.birdcoder.com",
+        "api.dtupay.com",
+        "api.sdkwork.cn",
+        "api.birdcoder.cn",
+        "api.dtupay.cn"
+      ]
     }
   },
   "components": {

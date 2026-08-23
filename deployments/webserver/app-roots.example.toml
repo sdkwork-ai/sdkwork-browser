@@ -1,0 +1,23 @@
+# Adaptive Web roots for sdkwork-browser (copy into runtime config when in-process).
+# Docker entrypoint generates /etc/sdkwork/webserver/module-app-roots/sdkwork-browser.toml
+
+[app_roots]
+tablet_surface = "pc"
+
+[app_roots.pc_static_by_environment]
+development = "apps/sdkwork-browser-pc/dist/dev"
+test = "apps/sdkwork-browser-pc/dist/test"
+staging = "apps/sdkwork-browser-pc/dist/staging"
+production = "apps/sdkwork-browser-pc/dist/prod"
+
+[app_roots.h5_static_by_environment]
+development = "apps/sdkwork-browser-h5/dist/dev"
+test = "apps/sdkwork-browser-h5/dist/test"
+staging = "apps/sdkwork-browser-h5/dist/staging"
+production = "apps/sdkwork-browser-h5/dist/prod"
+
+[app_roots.static_fallback_by_environment]
+development = "deployments/webserver/static"
+test = "deployments/webserver/static"
+staging = "deployments/webserver/static"
+production = "deployments/webserver/static"

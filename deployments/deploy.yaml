@@ -1,6 +1,5 @@
 version: 2
 defaultProfile: cloud.production
-
 profiles:
   cloud.development:
     deployment:
@@ -21,13 +20,32 @@ profiles:
         tls: sdkwork.com
         mode: web+api
         web: adaptive
+      - domain: browser-dev.birdcoder.com
+        tls: birdcoder.com
+        mode: web+api
+        web: adaptive
+      - domain: browser-dev.dtupay.com
+        tls: dtupay.com
+        mode: web+api
+        web: adaptive
+      - domain: browser-dev.sdkwork.cn
+        tls: sdkwork.cn
+        mode: web+api
+        web: adaptive
+      - domain: browser-dev.birdcoder.cn
+        tls: birdcoder.cn
+        mode: web+api
+        web: adaptive
+      - domain: browser-dev.dtupay.cn
+        tls: dtupay.cn
+        mode: web+api
+        web: adaptive
     packages: []
     overrides:
       topology:
         spec: specs/topology.spec.json
         profile: cloud.development
         env: etc/topology/cloud.development.env
-
   cloud.production:
     deployment:
       deploymentProfile: cloud
@@ -47,13 +65,32 @@ profiles:
         tls: sdkwork.com
         mode: web+api
         web: adaptive
+      - domain: browser.birdcoder.com
+        tls: birdcoder.com
+        mode: web+api
+        web: adaptive
+      - domain: browser.dtupay.com
+        tls: dtupay.com
+        mode: web+api
+        web: adaptive
+      - domain: browser.sdkwork.cn
+        tls: sdkwork.cn
+        mode: web+api
+        web: adaptive
+      - domain: browser.birdcoder.cn
+        tls: birdcoder.cn
+        mode: web+api
+        web: adaptive
+      - domain: browser.dtupay.cn
+        tls: dtupay.cn
+        mode: web+api
+        web: adaptive
     packages: []
     overrides:
       topology:
         spec: specs/topology.spec.json
         profile: cloud.production
         env: etc/topology/cloud.production.env
-
   standalone.development:
     deployment:
       deploymentProfile: standalone
@@ -73,13 +110,32 @@ profiles:
         tls: sdkwork.com
         mode: web+api
         web: adaptive
+      - domain: browser-dev.birdcoder.com
+        tls: birdcoder.com
+        mode: web+api
+        web: adaptive
+      - domain: browser-dev.dtupay.com
+        tls: dtupay.com
+        mode: web+api
+        web: adaptive
+      - domain: browser-dev.sdkwork.cn
+        tls: sdkwork.cn
+        mode: web+api
+        web: adaptive
+      - domain: browser-dev.birdcoder.cn
+        tls: birdcoder.cn
+        mode: web+api
+        web: adaptive
+      - domain: browser-dev.dtupay.cn
+        tls: dtupay.cn
+        mode: web+api
+        web: adaptive
     packages: []
     overrides:
       topology:
         spec: specs/topology.spec.json
         profile: standalone.development
         env: etc/topology/standalone.development.env
-
   standalone.production:
     deployment:
       deploymentProfile: standalone
@@ -97,6 +153,26 @@ profiles:
     expose:
       - domain: browser.sdkwork.com
         tls: sdkwork.com
+        mode: web+api
+        web: adaptive
+      - domain: browser.birdcoder.com
+        tls: birdcoder.com
+        mode: web+api
+        web: adaptive
+      - domain: browser.dtupay.com
+        tls: dtupay.com
+        mode: web+api
+        web: adaptive
+      - domain: browser.sdkwork.cn
+        tls: sdkwork.cn
+        mode: web+api
+        web: adaptive
+      - domain: browser.birdcoder.cn
+        tls: birdcoder.cn
+        mode: web+api
+        web: adaptive
+      - domain: browser.dtupay.cn
+        tls: dtupay.cn
         mode: web+api
         web: adaptive
     packages: []
