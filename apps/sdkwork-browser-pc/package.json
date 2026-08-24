@@ -9,7 +9,11 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "dev:desktop": "pnpm --filter sdkwork-browser-pc-desktop dev:desktop",
-    "build:desktop": "pnpm --filter sdkwork-browser-pc-desktop build:desktop"
+    "build:desktop": "pnpm --filter sdkwork-browser-pc-desktop build:desktop",
+    "build:dev": "node ../../../sdkwork-specs/tools/build-browser-client.mjs --app-root . --environment dev",
+    "build:test": "node ../../../sdkwork-specs/tools/build-browser-client.mjs --app-root . --environment test",
+    "build:staging": "node ../../../sdkwork-specs/tools/build-browser-client.mjs --app-root . --environment staging",
+    "build:prod": "node ../../../sdkwork-specs/tools/build-browser-client.mjs --app-root . --environment prod"
   },
   "dependencies": {
     "@sdkwork/browser-contracts": "workspace:*",
