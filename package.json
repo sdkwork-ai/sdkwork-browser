@@ -65,7 +65,11 @@
     "build:pc:test": "node ../sdkwork-specs/tools/build-browser-client.mjs --root . --architecture pc --environment test",
     "build:pc:staging": "node ../sdkwork-specs/tools/build-browser-client.mjs --root . --architecture pc --environment staging",
     "build:pc:prod": "node ../sdkwork-specs/tools/build-browser-client.mjs --root . --architecture pc --environment prod",
-    "check:browser-build-scripts": "node ../sdkwork-specs/tools/check-browser-build-scripts.mjs --root ."
+    "check:browser-build-scripts": "node ../sdkwork-specs/tools/check-browser-build-scripts.mjs --root .",
+    "build:pc:dev:cloud": "node ../sdkwork-specs/tools/build-browser-client.mjs --root . --architecture pc --environment dev --deployment-profile cloud",
+    "build:pc:test:cloud": "node ../sdkwork-specs/tools/build-browser-client.mjs --root . --architecture pc --environment test --deployment-profile cloud",
+    "build:pc:staging:cloud": "node ../sdkwork-specs/tools/build-browser-client.mjs --root . --architecture pc --environment staging --deployment-profile cloud",
+    "build:pc:prod:cloud": "node ../sdkwork-specs/tools/build-browser-client.mjs --root . --architecture pc --environment prod --deployment-profile cloud"
   },
   "devDependencies": {
     "@sdkwork/sdk-common": "workspace:*",
