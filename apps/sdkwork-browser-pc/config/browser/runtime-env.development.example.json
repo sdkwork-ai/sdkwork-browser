@@ -1,8 +1,0 @@
-{
-  "environment": "development",
-  "deploymentProfile": "standalone",
-  "runtimeTarget": "browser",
-  "sdkBaseUrls": {
-    "appApi": "/app/v3/api"
-  }
-}

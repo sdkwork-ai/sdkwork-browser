@@ -2,5 +2,40 @@
   "schemaVersion": 1,
   "kind": "sdkwork.component-deployment",
   "application": "sdkwork-browser-pc",
-  "parentTopologySpec": "../../../specs/topology.spec.json"
+  "parentTopologySpec": "../../../specs/topology.spec.json",
+  "profiles": {
+    "standalone.development": {
+      "source": "../config/browser/runtime-env.standalone.development.json"
+    },
+    "standalone.test": {
+      "source": "../config/browser/runtime-env.standalone.test.json"
+    },
+    "standalone.staging": {
+      "source": "../config/browser/runtime-env.standalone.staging.json"
+    },
+    "standalone.production": {
+      "source": "../config/browser/runtime-env.standalone.production.json"
+    },
+    "cloud.development": {
+      "source": "../config/browser/runtime-env.cloud.development.json"
+    },
+    "cloud.test": {
+      "source": "../config/browser/runtime-env.cloud.test.json"
+    },
+    "cloud.staging": {
+      "source": "../config/browser/runtime-env.cloud.staging.json"
+    },
+    "cloud.production": {
+      "source": "../config/browser/runtime-env.cloud.production.json"
+    }
+  },
+  "materialization": {
+    "authority": "../../../etc/sdkwork.deployment.config.json",
+    "command": "node scripts/materialize-runtime-env.mjs",
+    "format": "json",
+    "output": "../public/runtime-env.json",
+    "checkMode": "--check"
+  },
+  "parentDeploymentConfig": "../../../etc/sdkwork.deployment.config.json",
+  "runtimeTarget": "browser"
 }

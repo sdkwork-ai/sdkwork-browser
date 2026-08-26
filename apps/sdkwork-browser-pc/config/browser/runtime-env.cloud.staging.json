@@ -1,0 +1,15 @@
+{
+  "environment": "staging",
+  "deploymentProfile": "cloud",
+  "profileId": "cloud.staging",
+  "runtimeTarget": "browser",
+  "browserOriginMode": "cross-origin",
+  "sdkBaseUrls": {
+    "appApi": "/app/v3/api"
+  },
+  "appApiBaseUrl": "https://api-staging.sdkwork.com",
+  "backendApiBaseUrl": "https://api-staging.sdkwork.com",
+  "driveAppApiBaseUrl": "https://api-staging.sdkwork.com",
+  "appbaseAppApiBaseUrl": "https://api-staging.sdkwork.com",
+  "deployAppApiBaseUrl": "https://api-staging.sdkwork.com"
+}

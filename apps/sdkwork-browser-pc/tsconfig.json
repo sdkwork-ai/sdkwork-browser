@@ -9,7 +9,37 @@
     "noEmit": true,
     "isolatedModules": true,
     "allowImportingTsExtensions": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "paths": {
+      "react": [
+        "./node_modules/@types/react"
+      ],
+      "react/jsx-runtime": [
+        "./node_modules/@types/react/jsx-runtime"
+      ],
+      "react/jsx-dev-runtime": [
+        "./node_modules/@types/react/jsx-dev-runtime"
+      ],
+      "react-dom": [
+        "./node_modules/@types/react-dom"
+      ],
+      "react-dom/*": [
+        "./node_modules/@types/react-dom/*"
+      ],
+      "@sdkwork/sdk-common": [
+        "../../../../sdkwork-sdk-commons/sdkwork-sdk-common-typescript/src/index.ts"
+      ],
+      "@sdkwork/sdk-common/*": [
+        "../../../../sdkwork-sdk-commons/sdkwork-sdk-common-typescript/src/*"
+      ]
+    }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ]
 }

@@ -1,0 +1,15 @@
+{
+  "environment": "test",
+  "deploymentProfile": "cloud",
+  "profileId": "cloud.test",
+  "runtimeTarget": "browser",
+  "browserOriginMode": "cross-origin",
+  "sdkBaseUrls": {
+    "appApi": "/app/v3/api"
+  },
+  "appApiBaseUrl": "https://api-test.sdkwork.com",
+  "backendApiBaseUrl": "https://api-test.sdkwork.com",
+  "driveAppApiBaseUrl": "https://api-test.sdkwork.com",
+  "appbaseAppApiBaseUrl": "https://api-test.sdkwork.com",
+  "deployAppApiBaseUrl": "https://api-test.sdkwork.com"
+}
