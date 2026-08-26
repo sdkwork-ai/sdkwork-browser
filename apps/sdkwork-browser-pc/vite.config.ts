@@ -1,4 +1,4 @@
-import { resolveBrowserDistOutDir } from '../../../../sdkwork-specs/tools/browser-dist-layout.mjs';
+import { resolveBrowserDistOutDir } from '../../../sdkwork-specs/tools/browser-dist-layout.mjs';
 function resolveViteEnvironment(mode: string | undefined, processEnv = process.env) {
   const profileMatch = /^(standalone|cloud)\.(development|test|staging|production)$/u.exec(mode ?? '');
   return profileMatch?.[2]
