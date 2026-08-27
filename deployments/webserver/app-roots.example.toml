@@ -5,16 +5,16 @@
 tablet_surface = "pc"
 
 [app_roots.pc_static_by_environment]
-development = "apps/sdkwork-browser-pc/dist/dev"
-test = "apps/sdkwork-browser-pc/dist/test"
-staging = "apps/sdkwork-browser-pc/dist/staging"
-production = "apps/sdkwork-browser-pc/dist/prod"
+development = "apps/sdkwork-browser-pc/dist/standalone/dev"
+test = "apps/sdkwork-browser-pc/dist/standalone/test"
+staging = "apps/sdkwork-browser-pc/dist/standalone/staging"
+production = "apps/sdkwork-browser-pc/dist/standalone/prod"
 
 [app_roots.h5_static_by_environment]
-development = "apps/sdkwork-browser-h5/dist/dev"
-test = "apps/sdkwork-browser-h5/dist/test"
-staging = "apps/sdkwork-browser-h5/dist/staging"
-production = "apps/sdkwork-browser-h5/dist/prod"
+development = "apps/sdkwork-browser-h5/dist/standalone/dev"
+test = "apps/sdkwork-browser-h5/dist/standalone/test"
+staging = "apps/sdkwork-browser-h5/dist/standalone/staging"
+production = "apps/sdkwork-browser-h5/dist/standalone/prod"
 
 [app_roots.static_fallback_by_environment]
 development = "deployments/webserver/static"
