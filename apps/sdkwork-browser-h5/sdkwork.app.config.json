@@ -8,7 +8,7 @@
     "description": "Phone-first H5/Capacitor AI browser application for SDKWork.",
     "vendor": "SDKWork",
     "officialWebsiteUrl": "https://sdkwork.com/apps/sdkwork-browser-h5",
-    "appType": "APP_H5",
+    "appType": "APP_HTML",
     "versionSource": "package.json",
     "identifiers": {
       "packageName": "com.sdkwork.browser.h5",
@@ -49,19 +49,71 @@
         "id": "sdkwork-browser-h5-primary-icon",
         "type": "ICON",
         "purpose": "PRIMARY",
-        "url": "https://cdn.sdkwork.com/apps/sdkwork-browser/assets/icon-1024.png",
-        "platform": "MOBILE",
+        "url": "https://cdn.sdkwork.com/apps/sdkwork-browser-h5/assets/icon-1024.png",
+        "platform": "APP",
         "locale": "en-US",
         "width": 1024,
         "height": 1024,
         "format": "PNG",
-        "enabled": true
+        "fileSizeBytes": 524288,
+        "alphaChannel": false,
+        "sortOrder": 0,
+        "enabled": true,
+        "metadata": {
+          "generatedPlaceholder": true
+        }
       },
       "platform": [],
-      "metadata": {}
+      "metadata": {
+        "generatedPlaceholder": true
+      }
     },
-    "screenshots": [],
-    "previews": [],
+    "screenshots": [
+      {
+        "id": "sdkwork-browser-h5-web-screenshot",
+        "type": "SCREENSHOT",
+        "purpose": "CATALOG_SCREENSHOT",
+        "url": "https://cdn.sdkwork.com/apps/sdkwork-browser-h5/media/web-screenshot.png",
+        "platform": "WEB",
+        "locale": "en-US",
+        "deviceClass": "BROWSER",
+        "displayType": "WEB_DESKTOP",
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "fileSizeBytes": 1048576,
+        "alphaChannel": false,
+        "caption": "SDKWork Browser H5 product screenshot.",
+        "sortOrder": 0,
+        "enabled": true,
+        "metadata": {
+          "generatedPlaceholder": true,
+          "altText": "SDKWork Browser H5 app screenshot."
+        }
+      }
+    ],
+    "previews": [
+      {
+        "id": "sdkwork-browser-h5-catalog-preview",
+        "type": "PREVIEW_IMAGE",
+        "purpose": "CATALOG_PREVIEW",
+        "url": "https://cdn.sdkwork.com/apps/sdkwork-browser-h5/media/preview-cover.png",
+        "platform": "WEB",
+        "locale": "en-US",
+        "width": 1600,
+        "height": 900,
+        "format": "PNG",
+        "fileSizeBytes": 786432,
+        "alphaChannel": false,
+        "caption": "SDKWork Browser H5 preview.",
+        "sortOrder": 0,
+        "enabled": true,
+        "metadata": {
+          "generatedPlaceholder": true,
+          "altText": "SDKWork Browser H5 preview cover."
+        }
+      }
+    ],
     "metadata": {
       "assetVersion": "0.1.0",
       "defaultLocale": "en-US"
@@ -69,18 +121,17 @@
   },
   "publish": {
     "status": "ACTIVE",
-    "platforms": [
-      "MOBILE"
-    ],
-    "installPlatforms": [
-      "MOBILE"
-    ],
+    "platforms": [],
+    "installPlatforms": [],
     "defaultPackageId": "h5-universal-cloud-browser-zip",
     "storeUrl": "https://sdkwork.com/apps/sdkwork-browser-h5",
     "stores": [],
     "config": {
       "workspaceRoot": ".",
       "framework": "react"
+    },
+    "installSkill": {
+      "name": "sdkwork-skills-app"
     }
   },
   "environments": {
@@ -98,17 +149,24 @@
   "artifacts": {
     "installConfig": {
       "defaultPackageId": "h5-universal-cloud-browser-zip",
+      "installCommand": "sdkwork install sdkwork-browser-h5",
+      "launchCommand": "sdkwork open sdkwork-browser-h5",
+      "uninstallCommand": "sdkwork uninstall sdkwork-browser-h5",
       "packages": [
         {
           "id": "h5-universal-cloud-browser-zip",
           "name": "SDKWork Browser H5 Bundle",
           "sourceType": "WEB_URL",
           "packageFormat": "ZIP",
-          "platform": "MOBILE",
+          "platform": "H5",
           "architecture": "universal",
           "deploymentProfile": "cloud",
           "runtimeTarget": "browser",
-          "enabled": true
+          "enabled": true,
+          "profileBinding": "fixed",
+          "targetPlatform": "h5",
+          "clientArchitecture": "h5",
+          "url": "https://cdn.sdkwork.com/apps/sdkwork-browser-h5/STABLE/0.1.0/h5-universal-cloud-browser-zip-0.1.0.zip"
         }
       ],
       "metadata": {
@@ -123,7 +181,28 @@
     "latest": {
       "STABLE": "0.1.0"
     },
-    "notes": []
+    "notes": [
+      {
+        "version": "0.1.0",
+        "releaseChannel": "STABLE",
+        "title": "SDKWork Browser H5 0.1.0",
+        "summary": "SDKWork Browser H5 initialized standard release.",
+        "content": "Initial SDKWork App Standard v3 manifest for SDKWork Browser H5.",
+        "highlights": [
+          "SDKWork App Standard v3 configuration initialized",
+          "platform_app projection metadata standardized",
+          "Download package matrix normalized"
+        ],
+        "packageIds": [
+          "h5-universal-cloud-browser-zip"
+        ],
+        "publishedAt": "2026-05-07T00:00:00Z",
+        "current": true,
+        "forceUpdate": false,
+        "minSupportedVersion": "0.1.0",
+        "metadata": {}
+      }
+    ]
   },
   "security": {
     "checksumRequired": false,
@@ -138,14 +217,10 @@
     },
     "sourceRoot": "."
   },
-  "specs": {
-    "root": "../../../sdkwork-specs",
-    "architecture": "APP_H5_ARCHITECTURE_SPEC.md",
-    "ui": "APP_MOBILE_REACT_UI_SPEC.md"
-  },
   "metadata": {
     "domain": "platform",
     "capability": "browser",
-    "owner": "sdkwork-browser"
+    "owner": "sdkwork-browser",
+    "standardOwner": "sdkwork-platform"
   }
 }

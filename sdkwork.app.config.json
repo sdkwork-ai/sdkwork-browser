@@ -37,7 +37,7 @@
     ]
   },
   "runtime": {
-    "family": "multi-surface",
+    "family": "server",
     "framework": "rust-runtime",
     "runtimes": [
       "WEB",
@@ -68,13 +68,65 @@
         "width": 1024,
         "height": 1024,
         "format": "PNG",
-        "enabled": true
+        "fileSizeBytes": 524288,
+        "alphaChannel": false,
+        "sortOrder": 0,
+        "enabled": true,
+        "metadata": {
+          "generatedPlaceholder": true
+        }
       },
       "platform": [],
-      "metadata": {}
+      "metadata": {
+        "generatedPlaceholder": true
+      }
     },
-    "screenshots": [],
-    "previews": [],
+    "screenshots": [
+      {
+        "id": "sdkwork-browser-web-screenshot",
+        "type": "SCREENSHOT",
+        "purpose": "CATALOG_SCREENSHOT",
+        "url": "https://cdn.sdkwork.com/apps/sdkwork-browser/media/web-screenshot.png",
+        "platform": "WEB",
+        "locale": "en-US",
+        "deviceClass": "BROWSER",
+        "displayType": "WEB_DESKTOP",
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "fileSizeBytes": 1048576,
+        "alphaChannel": false,
+        "caption": "SDKWork Browser Runtime Platform product screenshot.",
+        "sortOrder": 0,
+        "enabled": true,
+        "metadata": {
+          "generatedPlaceholder": true,
+          "altText": "SDKWork Browser Runtime Platform app screenshot."
+        }
+      }
+    ],
+    "previews": [
+      {
+        "id": "sdkwork-browser-catalog-preview",
+        "type": "PREVIEW_IMAGE",
+        "purpose": "CATALOG_PREVIEW",
+        "url": "https://cdn.sdkwork.com/apps/sdkwork-browser/media/preview-cover.png",
+        "platform": "WEB",
+        "locale": "en-US",
+        "width": 1600,
+        "height": 900,
+        "format": "PNG",
+        "fileSizeBytes": 786432,
+        "alphaChannel": false,
+        "caption": "SDKWork Browser Runtime Platform preview.",
+        "sortOrder": 0,
+        "enabled": true,
+        "metadata": {
+          "generatedPlaceholder": true,
+          "altText": "SDKWork Browser Runtime Platform preview cover."
+        }
+      }
+    ],
     "metadata": {
       "assetVersion": "0.1.0",
       "defaultLocale": "en-US"
@@ -84,13 +136,11 @@
     "status": "ACTIVE",
     "platforms": [
       "WEB",
-      "DESKTOP",
-      "MOBILE"
+      "DESKTOP"
     ],
     "installPlatforms": [
       "WEB",
-      "DESKTOP",
-      "MOBILE"
+      "DESKTOP"
     ],
     "defaultPackageId": "desktop-windows-x64-standalone-zip",
     "storeUrl": "https://sdkwork.com/apps/sdkwork-browser",
@@ -98,11 +148,17 @@
     "config": {
       "workspaceRoot": ".",
       "framework": "rust-runtime"
+    },
+    "installSkill": {
+      "name": "sdkwork-skills-app"
     }
   },
   "artifacts": {
     "installConfig": {
       "defaultPackageId": "desktop-windows-x64-standalone-zip",
+      "installCommand": "sdkwork install sdkwork-browser",
+      "launchCommand": "sdkwork open sdkwork-browser",
+      "uninstallCommand": "sdkwork uninstall sdkwork-browser",
       "packages": [
         {
           "id": "desktop-windows-x64-standalone-zip",
@@ -113,7 +169,27 @@
           "architecture": "x64",
           "deploymentProfile": "standalone",
           "runtimeTarget": "desktop",
-          "enabled": true
+          "enabled": true,
+          "profileBinding": "fixed",
+          "targetPlatform": "windows",
+          "clientArchitecture": "tauri",
+          "url": "https://cdn.sdkwork.com/apps/sdkwork-browser/STABLE/0.1.0/desktop-windows-x64-standalone-zip-0.1.0.zip"
+        },
+        {
+          "id": "linux-x64-cloud-server-tar-gz",
+          "name": "Sdkwork Browser cloud server archive",
+          "sourceType": "BINARY_URL",
+          "packageFormat": "TAR_GZ",
+          "platform": "API",
+          "url": "https://cdn.sdkwork.com/apps/sdkwork-browser/STABLE/0.1.0/linux-x64-cloud-server-tar-gz-0.1.0.tar.gz",
+          "architecture": "x64",
+          "checksumAlgorithm": "SHA-256",
+          "checksum": "7c8a3211347b610c2d265fbdbf91e1b4dd71f667d19c9a54ffe5efdb8ff6c883",
+          "deploymentProfile": "cloud",
+          "runtimeTarget": "server",
+          "profileBinding": "fixed",
+          "enabled": true,
+          "metadata": {}
         }
       ],
       "metadata": {
@@ -128,7 +204,29 @@
     "latest": {
       "STABLE": "0.1.0"
     },
-    "notes": []
+    "notes": [
+      {
+        "version": "0.1.0",
+        "releaseChannel": "STABLE",
+        "title": "SDKWork Browser Runtime Platform 0.1.0",
+        "summary": "SDKWork Browser Runtime Platform initialized standard release.",
+        "content": "Initial SDKWork App Standard v3 manifest for SDKWork Browser Runtime Platform.",
+        "highlights": [
+          "SDKWork App Standard v3 configuration initialized",
+          "platform_app projection metadata standardized",
+          "Download package matrix normalized"
+        ],
+        "packageIds": [
+          "desktop-windows-x64-standalone-zip",
+          "linux-x64-cloud-server-tar-gz"
+        ],
+        "publishedAt": "2026-05-07T00:00:00Z",
+        "current": true,
+        "forceUpdate": false,
+        "minSupportedVersion": "0.1.0",
+        "metadata": {}
+      }
+    ]
   },
   "security": {
     "checksumRequired": false,
@@ -143,6 +241,7 @@
   },
   "metadata": {
     "standardOwner": "sdkwork-platform",
-    "initializedAt": "2026-06-19T00:00:00Z"
+    "initializedAt": "2026-06-19T00:00:00Z",
+    "deploymentConfig": "etc/sdkwork.deployment.config.json"
   }
 }

@@ -46,22 +46,74 @@
   "media": {
     "icons": {
       "primary": {
-        "id": "sdkwork-browser-flutter-primary-icon",
+        "id": "sdkwork-browser-flutter-mobile-primary-icon",
         "type": "ICON",
         "purpose": "PRIMARY",
-        "url": "https://cdn.sdkwork.com/apps/sdkwork-browser/assets/icon-1024.png",
-        "platform": "MOBILE",
+        "url": "https://cdn.sdkwork.com/apps/sdkwork-browser-flutter-mobile/assets/icon-1024.png",
+        "platform": "APP",
         "locale": "en-US",
         "width": 1024,
         "height": 1024,
         "format": "PNG",
-        "enabled": true
+        "fileSizeBytes": 524288,
+        "alphaChannel": false,
+        "sortOrder": 0,
+        "enabled": true,
+        "metadata": {
+          "generatedPlaceholder": true
+        }
       },
       "platform": [],
-      "metadata": {}
+      "metadata": {
+        "generatedPlaceholder": true
+      }
     },
-    "screenshots": [],
-    "previews": [],
+    "screenshots": [
+      {
+        "id": "sdkwork-browser-flutter-mobile-web-screenshot",
+        "type": "SCREENSHOT",
+        "purpose": "CATALOG_SCREENSHOT",
+        "url": "https://cdn.sdkwork.com/apps/sdkwork-browser-flutter-mobile/media/web-screenshot.png",
+        "platform": "WEB",
+        "locale": "en-US",
+        "deviceClass": "BROWSER",
+        "displayType": "WEB_DESKTOP",
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "fileSizeBytes": 1048576,
+        "alphaChannel": false,
+        "caption": "SDKWork Browser Flutter Mobile product screenshot.",
+        "sortOrder": 0,
+        "enabled": true,
+        "metadata": {
+          "generatedPlaceholder": true,
+          "altText": "SDKWork Browser Flutter Mobile app screenshot."
+        }
+      }
+    ],
+    "previews": [
+      {
+        "id": "sdkwork-browser-flutter-mobile-catalog-preview",
+        "type": "PREVIEW_IMAGE",
+        "purpose": "CATALOG_PREVIEW",
+        "url": "https://cdn.sdkwork.com/apps/sdkwork-browser-flutter-mobile/media/preview-cover.png",
+        "platform": "WEB",
+        "locale": "en-US",
+        "width": 1600,
+        "height": 900,
+        "format": "PNG",
+        "fileSizeBytes": 786432,
+        "alphaChannel": false,
+        "caption": "SDKWork Browser Flutter Mobile preview.",
+        "sortOrder": 0,
+        "enabled": true,
+        "metadata": {
+          "generatedPlaceholder": true,
+          "altText": "SDKWork Browser Flutter Mobile preview cover."
+        }
+      }
+    ],
     "metadata": {
       "assetVersion": "0.1.0",
       "defaultLocale": "en-US"
@@ -69,18 +121,17 @@
   },
   "publish": {
     "status": "ACTIVE",
-    "platforms": [
-      "MOBILE"
-    ],
-    "installPlatforms": [
-      "MOBILE"
-    ],
+    "platforms": [],
+    "installPlatforms": [],
     "defaultPackageId": "mobile-universal-cloud-apk",
     "storeUrl": "https://sdkwork.com/apps/sdkwork-browser-flutter-mobile",
     "stores": [],
     "config": {
       "workspaceRoot": ".",
       "framework": "flutter"
+    },
+    "installSkill": {
+      "name": "sdkwork-skills-app"
     }
   },
   "environments": {
@@ -98,17 +149,22 @@
   "artifacts": {
     "installConfig": {
       "defaultPackageId": "mobile-universal-cloud-apk",
+      "installCommand": "sdkwork install sdkwork-browser-flutter-mobile",
+      "launchCommand": "sdkwork open sdkwork-browser-flutter-mobile",
+      "uninstallCommand": "sdkwork uninstall sdkwork-browser-flutter-mobile",
       "packages": [
         {
           "id": "mobile-universal-cloud-apk",
           "name": "SDKWork Browser Mobile APK",
           "sourceType": "BINARY_URL",
           "packageFormat": "APK",
-          "platform": "MOBILE_ANDROID",
+          "platform": "API",
           "architecture": "universal",
           "deploymentProfile": "cloud",
-          "runtimeTarget": "mobile",
-          "enabled": true
+          "runtimeTarget": "server",
+          "enabled": true,
+          "profileBinding": "fixed",
+          "url": "https://cdn.sdkwork.com/apps/sdkwork-browser-flutter-mobile/STABLE/0.1.0/mobile-universal-cloud-apk-0.1.0.apk"
         }
       ],
       "metadata": {
@@ -123,7 +179,28 @@
     "latest": {
       "STABLE": "0.1.0"
     },
-    "notes": []
+    "notes": [
+      {
+        "version": "0.1.0",
+        "releaseChannel": "STABLE",
+        "title": "SDKWork Browser Flutter Mobile 0.1.0",
+        "summary": "SDKWork Browser Flutter Mobile initialized standard release.",
+        "content": "Initial SDKWork App Standard v3 manifest for SDKWork Browser Flutter Mobile.",
+        "highlights": [
+          "SDKWork App Standard v3 configuration initialized",
+          "platform_app projection metadata standardized",
+          "Download package matrix normalized"
+        ],
+        "packageIds": [
+          "mobile-universal-cloud-apk"
+        ],
+        "publishedAt": "2026-05-07T00:00:00Z",
+        "current": true,
+        "forceUpdate": false,
+        "minSupportedVersion": "0.1.0",
+        "metadata": {}
+      }
+    ]
   },
   "security": {
     "checksumRequired": false,
@@ -138,14 +215,10 @@
     },
     "sourceRoot": "."
   },
-  "specs": {
-    "root": "../../../sdkwork-specs",
-    "architecture": "FLUTTER_APP_MOBILE_ARCHITECTURE_SPEC.md",
-    "ui": "APP_FLUTTER_UI_SPEC.md"
-  },
   "metadata": {
     "domain": "platform",
     "capability": "browser",
-    "owner": "sdkwork-browser"
+    "owner": "sdkwork-browser",
+    "standardOwner": "sdkwork-platform"
   }
 }
