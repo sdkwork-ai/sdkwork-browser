@@ -18,7 +18,8 @@
         "development",
         "test",
         "staging",
-        "production"
+        "production",
+        "demo"
       ]
     }
   },
@@ -36,7 +37,9 @@
     "standalone.test": "etc/topology/standalone.test.env",
     "standalone.staging": "etc/topology/standalone.staging.env",
     "cloud.test": "etc/topology/cloud.test.env",
-    "cloud.staging": "etc/topology/cloud.staging.env"
+    "cloud.staging": "etc/topology/cloud.staging.env",
+    "standalone.demo": "etc/topology/standalone.demo.env",
+    "cloud.demo": "etc/topology/cloud.demo.env"
   },
   "envKeys": {
     "deploymentProfile": "SDKWORK_BROWSER_DEPLOYMENT_PROFILE",
@@ -123,6 +126,24 @@
             "browser-staging.86offer.com",
             "browser-staging.86offer.cn"
           ]
+        },
+        "demo": {
+          "httpHosts": [
+            "browser-demo.sdkwork.com",
+            "browser-demo.birdcoder.com",
+            "browser-demo.dtupay.com",
+            "browser-demo.sdkwork.cn",
+            "browser-demo.birdcoder.cn",
+            "browser-demo.dtupay.cn",
+            "browser-demo.skubc.com",
+            "browser-demo.skubc.cn",
+            "browser-demo.zowalk.com",
+            "browser-demo.zowalk.cn",
+            "browser-demo.offer86.com",
+            "browser-demo.offer86.cn",
+            "browser-demo.86offer.com",
+            "browser-demo.86offer.cn"
+          ]
         }
       },
       "httpHosts": [
@@ -197,6 +218,24 @@
             "api-staging.offer86.cn",
             "api-staging.86offer.com",
             "api-staging.86offer.cn"
+          ]
+        },
+        "demo": {
+          "httpHosts": [
+            "api-demo.sdkwork.com",
+            "api-demo.birdcoder.com",
+            "api-demo.dtupay.com",
+            "api-demo.sdkwork.cn",
+            "api-demo.birdcoder.cn",
+            "api-demo.dtupay.cn",
+            "api-demo.skubc.com",
+            "api-demo.skubc.cn",
+            "api-demo.zowalk.com",
+            "api-demo.zowalk.cn",
+            "api-demo.offer86.com",
+            "api-demo.offer86.cn",
+            "api-demo.86offer.com",
+            "api-demo.86offer.cn"
           ]
         }
       },
@@ -511,6 +550,14 @@
           "application.public-ingress",
           "platform.api-gateway"
         ]
+      },
+      "standalone.demo": {
+        "processes": [],
+        "healthSurfaces": []
+      },
+      "cloud.demo": {
+        "processes": [],
+        "healthSurfaces": []
       }
     }
   },

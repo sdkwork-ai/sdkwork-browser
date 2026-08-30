@@ -55,7 +55,7 @@ $dirs = @(
     "packages/common/browser/sdkwork-browser-service/src",
     "sdks/sdkwork-browser-app-sdk",
     "sdks/sdkwork-browser-backend-sdk",
-    "configs/schemas", "configs/profiles", "configs/examples", "configs/defaults",
+    "etc/schemas", "etc/profiles", "etc/examples", "etc/defaults",
     "deployments/docker", "deployments/k8s", "deployments/systemd", "deployments/nginx", "deployments/runbooks",
     "docs/adr", "docs/runbooks", "docs/changelogs",
     "examples", "jobs/schedules", "jobs/queues", "jobs/batches", "jobs/runbooks", "jobs/packages",

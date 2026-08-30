@@ -18,7 +18,7 @@ PRD defines SDKWORK Browser as a **Browser Runtime Platform** with pluggable eng
    - `sdkwork-browser-engine-servo-service` (V4 roadmap, ~80MB stub in V1)
 4. **Browser API** (top layer) is `sdkwork-browser-platform-service` — config YAML, tabs, agent, MCP.
 5. **Runtime host** is `sdkwork-browser-service-host` — builds `BrowserPlatform` from engine id.
-6. YAML config (`browser.engine`) in `configs/profiles/browser.*.yaml` switches engines without business code changes.
+6. YAML config (`browser.engine`) in `etc/profiles/browser.*.yaml` switches engines without business code changes.
 
 ## SDKWork naming map (PRD → compliant crate)
 

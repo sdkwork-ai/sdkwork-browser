@@ -18,7 +18,7 @@ Authoritative specs:
 - [x] WebView engine stub (default)
 - [x] CEF + Servo engine stubs for registry parity
 - [x] `BrowserPlatform` API (`sdkwork-browser-platform-service`)
-- [x] YAML config profiles (`configs/profiles/browser.*.yaml`)
+- [x] YAML config profiles (`etc/profiles/browser.*.yaml`)
 - [x] Tab / bookmark / history / download / cookie / session / storage modules
 - [x] Agent + MCP service ports
 - [x] Tri-surface apps (PC / H5 / Flutter)

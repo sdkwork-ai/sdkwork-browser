@@ -28,7 +28,7 @@ browser:
   engine: webview   # or servo | cef
 ```
 
-Profiles: `configs/profiles/browser.*.yaml`
+Profiles: `etc/profiles/browser.*.yaml`
 
 ## Surfaces
 

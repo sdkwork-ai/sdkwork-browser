@@ -100,18 +100,6 @@
       "framework": "rust-runtime"
     }
   },
-  "environments": {
-    "development": {
-      "accessUrl": "https://api-dev.sdkwork.com/apps/sdkwork-browser",
-      "deployUrl": "https://api-dev.sdkwork.com/apps/sdkwork-browser",
-      "deployEnv": "dev"
-    },
-    "production": {
-      "accessUrl": "https://api.sdkwork.com/apps/sdkwork-browser",
-      "deployUrl": "https://api.sdkwork.com/apps/sdkwork-browser",
-      "deployEnv": "production"
-    }
-  },
   "artifacts": {
     "installConfig": {
       "defaultPackageId": "desktop-windows-x64-standalone-zip",
