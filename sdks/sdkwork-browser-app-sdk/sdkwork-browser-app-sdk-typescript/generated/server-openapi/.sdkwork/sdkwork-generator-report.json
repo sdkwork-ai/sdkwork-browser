@@ -10,36 +10,45 @@
   },
   "status": "ok",
   "mode": "apply",
-  "hasChanges": false,
+  "hasChanges": true,
   "hasDestructiveChanges": false,
-  "changeFingerprint": "49209a025315ed3dd4bfa6151cee9281f0fd82ac75fb312f9522189db997205a",
+  "changeFingerprint": "a5154984f773258795aac0d1dc72b9e29d7b0bf0dfab955b1a3f5be3ddf916a5",
   "changeImpact": {
     "schemaVersion": 1,
-    "areas": [],
-    "details": [],
+    "areas": [
+      "documentation"
+    ],
+    "details": [
+      {
+        "area": "documentation",
+        "paths": [
+          "README.md"
+        ]
+      }
+    ],
     "requiresVerification": false,
-    "summary": "No generated, scaffold, or backup changes detected. Verification can be skipped."
+    "summary": "Only documentation and custom scaffold changes were detected. Verification can be skipped."
   },
   "executionDecision": {
     "schemaVersion": 1,
     "riskLevel": "low",
-    "nextAction": "skip",
+    "nextAction": "complete",
     "requiresManualReview": false,
     "applyRequiresExpectedFingerprint": false,
-    "summary": "No actionable changes were detected. No apply or verification step is required.",
+    "summary": "Changes have been applied and no further verification is required.",
     "reasons": [
-      "no-actionable-changes"
+      "non-runtime-documentation-or-scaffold-change"
     ]
   },
   "executionHandoff": {
     "schemaVersion": 1,
-    "summary": "No further commands are required.",
+    "summary": "No further commands are required after apply.",
     "steps": []
   },
   "verificationPlan": {
     "shouldRun": false,
     "runPhase": "skip",
-    "summary": "No generated, scaffold, or backup changes detected. Verification can be skipped.",
+    "summary": "Only documentation and custom scaffold changes were detected. Verification can be skipped.",
     "steps": []
   },
   "sdk": {
@@ -65,15 +74,17 @@
   "syncSummary": {
     "dryRun": false,
     "controlPlaneEnabled": true,
-    "writtenFiles": 0,
+    "writtenFiles": 1,
     "skippedScaffoldFiles": 2,
-    "skippedUnchangedGeneratedFiles": 34,
+    "skippedUnchangedGeneratedFiles": 33,
     "deletedGeneratedFiles": 0,
     "changeSummaryPath": ".sdkwork/sdkwork-generator-changes.json",
-    "changeFingerprint": "49209a025315ed3dd4bfa6151cee9281f0fd82ac75fb312f9522189db997205a",
+    "changeFingerprint": "a5154984f773258795aac0d1dc72b9e29d7b0bf0dfab955b1a3f5be3ddf916a5",
     "changes": {
       "createdGeneratedFiles": [],
-      "updatedGeneratedFiles": [],
+      "updatedGeneratedFiles": [
+        "README.md"
+      ],
       "unchangedGeneratedFiles": [
         "bin/publish-core.mjs",
         "bin/publish.ps1",
@@ -83,7 +94,6 @@
         "CHANGELOG.md",
         "LICENSE",
         "package.json",
-        "README.md",
         "sdkwork-sdk.json",
         "src/api/base.ts",
         "src/api/browser.ts",
@@ -120,26 +130,35 @@
     },
     "impact": {
       "schemaVersion": 1,
-      "areas": [],
-      "details": [],
+      "areas": [
+        "documentation"
+      ],
+      "details": [
+        {
+          "area": "documentation",
+          "paths": [
+            "README.md"
+          ]
+        }
+      ],
       "requiresVerification": false,
-      "summary": "No generated, scaffold, or backup changes detected. Verification can be skipped."
+      "summary": "Only documentation and custom scaffold changes were detected. Verification can be skipped."
     },
     "verificationPlan": {
       "shouldRun": false,
       "runPhase": "skip",
-      "summary": "No generated, scaffold, or backup changes detected. Verification can be skipped.",
+      "summary": "Only documentation and custom scaffold changes were detected. Verification can be skipped.",
       "steps": []
     },
     "executionDecision": {
       "schemaVersion": 1,
       "riskLevel": "low",
-      "nextAction": "skip",
+      "nextAction": "complete",
       "requiresManualReview": false,
       "applyRequiresExpectedFingerprint": false,
-      "summary": "No actionable changes were detected. No apply or verification step is required.",
+      "summary": "Changes have been applied and no further verification is required.",
       "reasons": [
-        "no-actionable-changes"
+        "non-runtime-documentation-or-scaffold-change"
       ]
     },
     "backedUpFiles": [],

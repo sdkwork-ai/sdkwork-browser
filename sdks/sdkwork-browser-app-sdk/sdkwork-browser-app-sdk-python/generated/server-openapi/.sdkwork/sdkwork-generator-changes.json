@@ -9,10 +9,13 @@
     "protocol": "http",
     "packageName": "sdkwork-browser-app-sdk"
   },
-  "changeFingerprint": "592b8361362f73cff8cc30fd36cd1253444b18dc1ca7e0c935a0ad0ff1727cdc",
+  "changeFingerprint": "f4c52bf4f75cb9c2cc1d871453002f23cfdd7e866be1d909b98178b2db7ca3cf",
   "changes": {
     "createdGeneratedFiles": [],
-    "updatedGeneratedFiles": [],
+    "updatedGeneratedFiles": [
+      "README.md",
+      "sdkwork_browser_app_sdk/api/browser.py"
+    ],
     "unchangedGeneratedFiles": [
       "bin/publish-core.mjs",
       "bin/publish.ps1",
@@ -21,11 +24,9 @@
       "LICENSE",
       "MANIFEST.in",
       "pyproject.toml",
-      "README.md",
       "requirements.txt",
       "sdkwork_browser_app_sdk/__init__.py",
       "sdkwork_browser_app_sdk/api/__init__.py",
-      "sdkwork_browser_app_sdk/api/browser.py",
       "sdkwork_browser_app_sdk/client.py",
       "sdkwork_browser_app_sdk/http_client.py",
       "sdkwork_browser_app_sdk/models/__init__.py",
@@ -51,26 +52,61 @@
   },
   "impact": {
     "schemaVersion": 1,
-    "areas": [],
-    "details": [],
-    "requiresVerification": false,
-    "summary": "No generated, scaffold, or backup changes detected. Verification can be skipped."
+    "areas": [
+      "api-surface",
+      "documentation"
+    ],
+    "details": [
+      {
+        "area": "api-surface",
+        "paths": [
+          "sdkwork_browser_app_sdk/api/browser.py"
+        ]
+      },
+      {
+        "area": "documentation",
+        "paths": [
+          "README.md"
+        ]
+      }
+    ],
+    "requiresVerification": true,
+    "summary": "Detected impact areas: api-surface, documentation. Verification is required."
   },
   "verificationPlan": {
-    "shouldRun": false,
-    "runPhase": "skip",
-    "summary": "No generated, scaffold, or backup changes detected. Verification can be skipped.",
-    "steps": []
+    "shouldRun": true,
+    "runPhase": "now",
+    "summary": "Detected impact areas: api-surface, documentation. Verification is required. Run the required verification commands now against the generated SDK output.",
+    "steps": [
+      {
+        "id": "check",
+        "title": "Unified package check",
+        "required": true,
+        "rationale": "Validate the generated package with the unified publish helper. Triggered by: api-surface, documentation.",
+        "workingDirectory": "E:\\sdkwork-space\\sdkwork-browser\\sdks\\sdkwork-browser-app-sdk\\sdkwork-browser-app-sdk-python\\generated\\server-openapi",
+        "command": "node",
+        "args": [
+          "./bin/publish-core.mjs",
+          "--language",
+          "python",
+          "--project-dir",
+          ".",
+          "--action",
+          "check"
+        ],
+        "displayCommand": "node ./bin/publish-core.mjs --language python --project-dir . --action check"
+      }
+    ]
   },
   "executionDecision": {
     "schemaVersion": 1,
-    "riskLevel": "low",
-    "nextAction": "skip",
+    "riskLevel": "medium",
+    "nextAction": "verify",
     "requiresManualReview": false,
     "applyRequiresExpectedFingerprint": false,
-    "summary": "No actionable changes were detected. No apply or verification step is required.",
+    "summary": "Changes have been applied. Run the required verification plan now.",
     "reasons": [
-      "no-actionable-changes"
+      "verification-required"
     ]
   },
   "preservedLegacyFiles": false

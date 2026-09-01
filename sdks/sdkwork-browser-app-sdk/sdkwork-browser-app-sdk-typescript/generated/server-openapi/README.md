@@ -28,7 +28,7 @@ client.setAccessToken('your-access-token');
 
 // Use the SDK
 const body = {};
-const result = await client.browser.aiActions.create(body);
+const result = await client.browser.sessions.create(body);
 ```
 
 ## Authentication
@@ -62,9 +62,9 @@ const client = new SdkworkAppClient({
 ### browser
 
 ```typescript
-// browser.aiActions.create
+// browser.sessions.create
 const body = {};
-const result = await client.browser.aiActions.create(body);
+const result = await client.browser.sessions.create(body);
 ```
 
 ## Error Handling
@@ -74,7 +74,7 @@ import { SdkworkAppClient, NetworkError, TimeoutError, AuthenticationError } fro
 
 try {
   const body = {};
-  const result = await client.browser.aiActions.create(body);
+  const result = await client.browser.sessions.create(body);
 } catch (error) {
   if (error instanceof AuthenticationError) {
     console.error('Authentication failed:', error.message);

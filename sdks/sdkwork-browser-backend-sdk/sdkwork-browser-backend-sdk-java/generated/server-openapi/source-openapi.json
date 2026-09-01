@@ -33,7 +33,7 @@
           "browser"
         ],
         "summary": "browser.engines.list",
-        "operationId": "browser.engines.list",
+        "operationId": "engines.list",
         "responses": {
           "200": {
             "description": "Success",
@@ -85,7 +85,8 @@
         "x-sdkwork-owner": "sdkwork-browser",
         "x-sdkwork-api-authority": "sdkwork-browser-backend-api",
         "x-sdkwork-request-context": "WebRequestContext",
-        "x-sdkwork-api-surface": "backend-api"
+        "x-sdkwork-api-surface": "backend-api",
+        "parameters": []
       }
     },
     "/backend/v3/api/browser/sessions": {
@@ -94,7 +95,7 @@
           "browser"
         ],
         "summary": "browser.sessions.list",
-        "operationId": "browser.sessions.list",
+        "operationId": "sessions.list",
         "responses": {
           "200": {
             "description": "Success",
@@ -146,7 +147,8 @@
         "x-sdkwork-owner": "sdkwork-browser",
         "x-sdkwork-api-authority": "sdkwork-browser-backend-api",
         "x-sdkwork-request-context": "WebRequestContext",
-        "x-sdkwork-api-surface": "backend-api"
+        "x-sdkwork-api-surface": "backend-api",
+        "parameters": []
       }
     }
   },

@@ -1,6 +1,6 @@
 {
   "name": "@sdkwork/browser-backend-sdk",
-  "version": "0.1.4",
+  "version": "0.1.6",
   "description": "SDKWork sdkwork-browser-backend-sdk composed consumer facade.",
   "type": "module",
   "private": false,

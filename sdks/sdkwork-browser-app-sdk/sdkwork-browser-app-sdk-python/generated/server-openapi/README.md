@@ -23,7 +23,7 @@ client.set_access_token("your-access-token")
 
 # Use the SDK
 body = {}
-result = client.browser.ai_actions.ai_actions_create(body)
+result = client.browser.ai_actions.create(body)
 ```
 
 ## Authentication
@@ -58,7 +58,7 @@ client.set_header('X-Custom-Header', 'value')
 ```python
 # browser.aiActions.create
 body = {}
-result = client.browser.ai_actions.ai_actions_create(body)
+result = client.browser.ai_actions.create(body)
 print(result)
 ```
 
@@ -67,7 +67,7 @@ print(result)
 ```python
 try:
     body = {}
-    client.browser.ai_actions.ai_actions_create(body)
+    client.browser.ai_actions.create(body)
 except Exception as error:
     print(f"Error: {error}")
 ```

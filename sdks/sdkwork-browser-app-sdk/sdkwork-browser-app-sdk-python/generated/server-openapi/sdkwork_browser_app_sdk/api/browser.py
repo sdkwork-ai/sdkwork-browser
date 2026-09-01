@@ -30,7 +30,7 @@ class BrowserAiActionsApi:
         self._client = client
 
 
-    def ai_actions_create(self, body: Dict[str, Any]) -> SdkWorkResourceResponse:
+    def create(self, body: Dict[str, Any]) -> SdkWorkResourceResponse:
         """browser.aiActions.create"""
         return self._client.post(f"/app/v3/api/browser/ai/actions", json=body)
 

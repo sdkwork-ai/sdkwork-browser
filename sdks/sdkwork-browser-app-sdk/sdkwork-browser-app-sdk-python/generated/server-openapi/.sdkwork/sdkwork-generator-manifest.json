@@ -40,7 +40,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "42e5c596f39da8c128997426f56c9682285d0fe444a7870f47dd1f3a512bcabd"
+      "sha256": "bbb7c86e2f0cdbae59f268f9641b5f92defa7a05d3379ab41cd2912693650daf"
     },
     {
       "path": "requirements.txt",
@@ -56,7 +56,7 @@
     },
     {
       "path": "sdkwork_browser_app_sdk/api/browser.py",
-      "sha256": "f26e415eb459845c59d07f88f0417aba2c7c79082bed4d73520db177d8703f70"
+      "sha256": "f3c951e3d128106eadeba2302350ceb3d26a92a176351a34db3a8b7284f18338"
     },
     {
       "path": "sdkwork_browser_app_sdk/client.py",
