@@ -11,7 +11,7 @@ use axum::Router;
 use sdkwork_browser_platform_service::BrowserPlatform;
 use sdkwork_database_sqlx::DatabasePool;
 use sdkwork_routes_browser_support::BrowserGatewayState;
-use sdkwork_web_bootstrap::{ApiAssemblyContribution, DatabasePoolReadinessCheck, ReadinessCheck};
+use sdkwork_web_bootstrap::{ApiAssemblyContribution, DatabasePoolReadinessCheck, ReadinessCheck, WebModule};
 use sdkwork_web_core::HttpRouteManifest;
 
 /// Indivisible host-neutral API assembly contribution (web-bootstrap contract).
@@ -87,4 +87,17 @@ pub async fn assemble_api_router_with_pool(pool: DatabasePool) -> Result<ApiAsse
         browser_router()?,
         Arc::new(DatabasePoolReadinessCheck::new(pool)),
     )
+}
+
+/// Canonical Web Module definition for this application
+/// (API_ASSEMBLY_SPEC §4.1.1): the complete HTTP surface — every route,
+/// manifest, and OpenAPI document of this owner — as one installable module.
+pub fn web_module() -> Result<WebModule, String> {
+    Ok(WebModule::from_contribution(assemble_api_router().map_err(|error| error.to_string())?))
+}
+
+/// Same as [`web_module`] but composed on a process-shared database pool
+/// (platform gateways, API_ASSEMBLY_SPEC §4.1.1).
+pub async fn web_module_with_pool(pool: DatabasePool) -> Result<WebModule, String> {
+    Ok(WebModule::from_contribution(assemble_api_router_with_pool(pool).await?))
 }

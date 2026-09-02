@@ -6,7 +6,7 @@ use sdkwork_iam_web_adapter::{
     build_web_framework_builder, iam_web_request_context_resolver_from_database_pool_for_audiences,
     iam_web_request_context_resolver_from_env, IamAuditEmitter, IamSecurityEventEmitter,
 };
-use sdkwork_web_bootstrap::ComposedApiAssembly;
+use sdkwork_web_bootstrap::ApiModuleRegistry;
 use std::sync::Arc;
 
 const APPLICATION_ID: &str = "sdkwork-browser";
@@ -58,7 +58,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 environment,
             )));
     }
-    let router = ComposedApiAssembly::try_compose("SDKWork Browser API", vec![assembly])?
+    let mut module_registry = ApiModuleRegistry::new();
+    module_registry.add_modules(vec![assembly]);
+    let router = module_registry
+        .try_compose("SDKWork Browser API")?
         .into_hosted(framework)
         .router;
 
