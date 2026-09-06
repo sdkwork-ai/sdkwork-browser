@@ -13,20 +13,26 @@
     "standalone.staging": {
       "source": "browser/runtime-env.standalone.staging.json"
     },
+    "standalone.demo": {
+      "source": "browser/runtime-env.standalone.demo.json"
+    },
     "standalone.production": {
       "source": "browser/runtime-env.standalone.production.json"
     },
     "cloud.development": {
-      "source": "../config/browser/runtime-env.cloud.development.json"
+      "source": "browser/runtime-env.cloud.development.json"
     },
     "cloud.test": {
-      "source": "../config/browser/runtime-env.cloud.test.json"
+      "source": "browser/runtime-env.cloud.test.json"
     },
     "cloud.staging": {
-      "source": "../config/browser/runtime-env.cloud.staging.json"
+      "source": "browser/runtime-env.cloud.staging.json"
+    },
+    "cloud.demo": {
+      "source": "browser/runtime-env.cloud.demo.json"
     },
     "cloud.production": {
-      "source": "../config/browser/runtime-env.cloud.production.json"
+      "source": "browser/runtime-env.cloud.production.json"
     }
   },
   "materialization": {
