@@ -17,9 +17,11 @@
   "cloudApiBaseUrls": [
     "https://api-dev.sdkwork.com",
     "https://api-dev.birdcoder.com",
+    "https://api-dev.noaper.com",
     "https://api-dev.dtupay.com",
     "https://api-dev.sdkwork.cn",
     "https://api-dev.birdcoder.cn",
+    "https://api-dev.noaper.cn",
     "https://api-dev.dtupay.cn",
     "https://api-dev.skubc.com",
     "https://api-dev.skubc.cn",
