@@ -46,7 +46,8 @@
   },
   "dependencies": {
     "@sdkwork/browser-app-sdk": "workspace:*",
-    "@sdkwork/browser-backend-sdk": "workspace:*"
+    "@sdkwork/browser-backend-sdk": "workspace:*",
+    "@sdkwork/sdk-common": "workspace:*"
   },
   "sdkwork": {
     "workspace": "sdkwork-browser",

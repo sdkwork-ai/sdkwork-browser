@@ -3,10 +3,9 @@ import {
   createClient as createBackendClient,
   type SdkworkBackendClient,
 } from "@sdkwork/browser-backend-sdk";
+import { resolveBaseUrl } from "@sdkwork/sdk-common";
 
 import { getRuntimeEnvironment } from "./environment.ts";
-
-const DEFAULT_GATEWAY_BASE_URL = "http://localhost:8080";
 
 const DEV_AUTH_TOKEN =
   "tenant_id=sdkwork;user_id=browser;session_id=local;app_id=sdkwork-browser;auth_level=password";
@@ -71,7 +70,9 @@ export function resolveBrowserGatewayBaseUrl(): string {
   if (typeof configured === "string" && configured.trim().length > 0) {
     return configured.replace(/\/$/, "");
   }
-  return DEFAULT_GATEWAY_BASE_URL;
+  // Resolve the shared SDKWORK_API_BASE_URL through @sdkwork/sdk-common (env +
+  // brand + protocol aware), eliminating the hardcoded localhost default.
+  return resolveBaseUrl().url;
 }
 
 export function resolveBrowserAppApiBaseUrl(): string {
