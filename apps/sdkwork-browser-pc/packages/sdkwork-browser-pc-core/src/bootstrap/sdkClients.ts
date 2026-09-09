@@ -3,7 +3,7 @@ import {
   createClient as createBackendClient,
   type SdkworkBackendClient,
 } from "@sdkwork/browser-backend-sdk";
-import { resolveBaseUrl } from "@sdkwork/sdk-common";
+import {resolveBaseUrlWithAlignProtocol} from "@sdkwork/sdk-common";
 
 import { getRuntimeEnvironment } from "./environment.ts";
 
@@ -72,7 +72,7 @@ export function resolveBrowserGatewayBaseUrl(): string {
   }
   // Resolve the shared SDKWORK_API_BASE_URL through @sdkwork/sdk-common (env +
   // brand + protocol aware), eliminating the hardcoded localhost default.
-  return resolveBaseUrl().url;
+  return resolveBaseUrlWithAlignProtocol().url;
 }
 
 export function resolveBrowserAppApiBaseUrl(): string {
