@@ -1,10 +1,14 @@
 ﻿[package]
+rust-version.workspace = true
 name = "sdkwork-browser-tab-service"
 description = "Browser tab lifecycle service."
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+
+[lints]
+workspace = true
 [dependencies]
 serde.workspace = true
 uuid.workspace = true

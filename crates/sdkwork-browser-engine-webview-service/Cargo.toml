@@ -1,10 +1,14 @@
 [package]
+rust-version.workspace = true
 name = "sdkwork-browser-engine-webview-service"
 description = "WebView browser engine (WebView2, WKWebView, WebKitGTK, Android WebView)."
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+
+[lints]
+workspace = true
 [dependencies]
 async-trait.workspace = true
 sdkwork-browser-engine-api-service.workspace = true

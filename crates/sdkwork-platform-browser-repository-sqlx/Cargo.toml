@@ -1,10 +1,14 @@
 [package]
+rust-version.workspace = true
 name = "sdkwork-platform-browser-repository-sqlx"
 description = "SDKWork platform browser SQLx repository implementation."
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+
+[lints]
+workspace = true
 [lib]
 path = "src/lib.rs"
 

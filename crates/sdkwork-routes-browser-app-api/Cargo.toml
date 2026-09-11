@@ -1,10 +1,14 @@
 [package]
+rust-version.workspace = true
 name = "sdkwork-routes-browser-app-api"
 version = "0.1.0"
 edition = "2021"
 license = "Apache-2.0"
 description = "SDKWork Browser app-api route manifest."
 
+
+[lints]
+workspace = true
 [lib]
 path = "src/lib.rs"
 

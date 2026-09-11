@@ -1,10 +1,14 @@
 ﻿[package]
+rust-version.workspace = true
 name = "sdkwork-browser-plugin-service"
 description = "Unified browser plugin registry."
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+
+[lints]
+workspace = true
 [dependencies]
 sdkwork-browser-abstraction-service.workspace = true
 sdkwork-browser-agent-service.workspace = true

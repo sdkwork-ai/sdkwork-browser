@@ -1,4 +1,5 @@
 [package]
+rust-version.workspace = true
 name = "sdkwork-api-browser-standalone-gateway"
 description = "HTTP API server for SDKWork Browser app-api and backend-api surfaces."
 version.workspace = true
@@ -19,3 +20,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 sdkwork-iam-web-adapter = { workspace = true }
 sdkwork-web-bootstrap = { workspace = true }
 
+
+
+[lints]
+workspace = true

@@ -1,10 +1,14 @@
 ﻿[package]
+rust-version.workspace = true
 name = "sdkwork-browser-native-host"
 description = "Native browser host adapter backed by Chromium Embedded Framework."
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+
+[lints]
+workspace = true
 [dependencies]
 async-trait.workspace = true
 sdkwork-browser-abstraction-service.workspace = true

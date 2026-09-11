@@ -1,10 +1,14 @@
 ﻿[package]
+rust-version.workspace = true
 name = "sdkwork-browser-history-service"
 description = "Browsing history, search, and cleanup."
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+
+[lints]
+workspace = true
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
 serde.workspace = true

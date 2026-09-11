@@ -1,10 +1,14 @@
 ﻿[package]
+rust-version.workspace = true
 name = "sdkwork-browser-agent-service"
 description = "Agent runtime integration for page understanding and automation."
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+
+[lints]
+workspace = true
 [dependencies]
 serde.workspace = true
 serde_json.workspace = true

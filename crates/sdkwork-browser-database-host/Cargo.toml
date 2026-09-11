@@ -1,10 +1,14 @@
 [package]
+rust-version.workspace = true
 name = "sdkwork-browser-database-host"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 description = "SDKWork Browser database lifecycle bootstrap."
 
+
+[lints]
+workspace = true
 [lib]
 name = "sdkwork_browser_database_host"
 path = "src/lib.rs"

@@ -1,4 +1,5 @@
 [package]
+rust-version.workspace = true
 name = "sdkwork-browser-pc-desktop"
 version = "0.1.0"
 description = "SDKWork Browser PC Tauri desktop host shell."
@@ -6,6 +7,9 @@ authors = ["SDKWork"]
 license = "Apache-2.0"
 edition = "2021"
 
+
+[lints]
+workspace = true
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 

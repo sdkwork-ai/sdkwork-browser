@@ -1,10 +1,14 @@
 [package]
+rust-version.workspace = true
 name = "sdkwork-browser-service-host"
 description = "Browser Runtime composition host and platform factory."
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+
+[lints]
+workspace = true
 [dependencies]
 sdkwork-browser-engine-api-service.workspace = true
 sdkwork-browser-engine-registry-service.workspace = true

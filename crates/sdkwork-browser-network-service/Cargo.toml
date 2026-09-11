@@ -1,9 +1,13 @@
 ﻿[package]
+rust-version.workspace = true
 name = "sdkwork-browser-network-service"
 description = "Browser network stack abstraction."
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+
+[lints]
+workspace = true
 [dependencies]
 sdkwork-browser-abstraction-service.workspace = true
