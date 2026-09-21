@@ -29,6 +29,7 @@
     "@sdkwork/browser-pc-commons": "workspace:*",
     "@sdkwork/browser-pc-browser": "workspace:*",
     "@sdkwork/browser-pc-shell": "workspace:*",
+    "@sdkwork/iam-credential-entry": "workspace:*",
     "@tauri-apps/api": "^2.8.0",
     "@tanstack/react-router": "^1.166.2",
     "react": "^19.0.1",
