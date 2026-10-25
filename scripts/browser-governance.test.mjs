@@ -6,7 +6,7 @@ const root = join(import.meta.dirname, "..");
 
 const requiredPaths = [
   "AGENTS.md",
-  "sdkwork.workflow.json",
+  "agent.workflow.json",
   "agent.app.config.json",
   ".github/workflows/package.yml",
   "deployments/README.md",
@@ -115,10 +115,10 @@ const packageJson = JSON.parse(readFileSync(join(root, "package.json"), "utf8"))
 assert.ok(packageJson.scripts["dev:server"], "package.json must expose dev:server");
 assert.ok(packageJson.scripts["gateway:run"], "package.json must expose gateway:run");
 
-const workflow = JSON.parse(readFileSync(join(root, "sdkwork.workflow.json"), "utf8"));
+const workflow = JSON.parse(readFileSync(join(root, "agent.workflow.json"), "utf8"));
 const workflowDeps = workflow.dependencies.map((entry) => entry.id);
 for (const dep of ["sdkwork-database", "sdkwork-web-framework", "sdkwork-utils"]) {
-  assert.ok(workflowDeps.includes(dep), `sdkwork.workflow.json must declare ${dep}`);
+  assert.ok(workflowDeps.includes(dep), `agent.workflow.json must declare ${dep}`);
 }
 assert.ok(!workflowDeps.includes("sdkwork-discovery"), "discovery must not be in workflow yet");
 

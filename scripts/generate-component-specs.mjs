@@ -98,7 +98,7 @@ function writeRootSpec() {
     type: "workspace",
     root: "sdkwork-browser",
     languages: ["typescript", "rust"],
-    manifests: ["package.json", "Cargo.toml", "sdkwork.workflow.json"],
+    manifests: ["package.json", "Cargo.toml", "agent.workflow.json"],
     runtimeEntrypoints: ["apps/sdkwork-browser-pc"],
     verification: ["pnpm verify"],
   });

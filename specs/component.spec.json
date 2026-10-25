@@ -17,7 +17,7 @@
     "manifests": [
       "package.json",
       "Cargo.toml",
-      "sdkwork.workflow.json"
+      "agent.workflow.json"
     ]
   },
   "canonicalSpecs": [

@@ -23,7 +23,7 @@ There is **no hosted gRPC service process** and no `apis/rpc/` proto authority i
 Until then:
 
 1. Keep HTTP as the only remote transport contract (`apis/app-api/`, `apis/backend-api/`).
-2. Do **not** add `sdkwork-discovery` to root `Cargo.toml` or `sdkwork.workflow.json`.
+2. Do **not** add `sdkwork-discovery` to root `Cargo.toml` or `agent.workflow.json`.
 3. Document phased adoption in this ADR and `specs/README.md`.
 
 ## Phase 1 — First hosted RPC service (prerequisite for discovery)
