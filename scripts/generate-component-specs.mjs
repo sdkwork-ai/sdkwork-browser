@@ -114,7 +114,7 @@ function writeAppsSpecs() {
       type: "application",
       root: `sdkwork-browser/apps/${app}`,
       languages: app.includes("flutter") ? ["dart"] : ["typescript"],
-      manifests: ["sdkwork.app.config.json", "package.json"],
+      manifests: ["agent.app.config.json", "package.json"],
       runtimeEntrypoints: ["."],
       verification: ["pnpm verify"],
     });

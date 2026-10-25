@@ -5,7 +5,7 @@
     "name": "SDKWork Browser",
     "repository": "sdkwork-ai/sdkwork-browser",
     "sourcePath": ".",
-    "configPath": "sdkwork.app.config.json"
+    "configPath": "agent.app.config.json"
   },
   "release": {
     "artifactPrefix": "sdkwork-browser",

@@ -7,7 +7,7 @@ const root = join(import.meta.dirname, "..");
 const requiredPaths = [
   "AGENTS.md",
   "sdkwork.workflow.json",
-  "sdkwork.app.config.json",
+  "agent.app.config.json",
   ".github/workflows/package.yml",
   "deployments/README.md",
   "etc/README.md",
@@ -47,7 +47,7 @@ const requiredPaths = [
   "apps/sdkwork-browser-pc/packages/sdkwork-browser-pc-commons/package.json",
   "apps/sdkwork-browser-pc/packages/sdkwork-browser-pc-shell/package.json",
   "apps/sdkwork-browser-pc/packages/sdkwork-browser-pc-browser/package.json",
-  "apps/sdkwork-browser-pc/sdkwork.app.config.json",
+  "apps/sdkwork-browser-pc/agent.app.config.json",
   "apps/sdkwork-browser-h5/package.json",
   "apps/sdkwork-browser-h5/config/browser/runtime-env.development.example.json",
   "apps/sdkwork-browser-h5/config/host/capacitor.development.example.json",
@@ -127,12 +127,12 @@ const dbManifest = JSON.parse(
 );
 assert.ok(dbManifest.engines.includes("postgres"), "database manifest must list postgres engine");
 
-const rootManifest = JSON.parse(readFileSync(join(root, "sdkwork.app.config.json"), "utf8"));
+const rootManifest = JSON.parse(readFileSync(join(root, "agent.app.config.json"), "utf8"));
 assert.equal(rootManifest.schemaVersion, 3);
 assert.equal(rootManifest.app.key, "sdkwork-browser");
 
 const pcManifest = JSON.parse(
-  readFileSync(join(root, "apps/sdkwork-browser-pc/sdkwork.app.config.json"), "utf8"),
+  readFileSync(join(root, "apps/sdkwork-browser-pc/agent.app.config.json"), "utf8"),
 );
 assert.equal(pcManifest.schemaVersion, 3);
 assert.equal(pcManifest.app.key, "sdkwork-browser-pc");
