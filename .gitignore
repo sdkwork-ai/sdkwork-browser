@@ -14,7 +14,7 @@ target/
 **/target/
 !.env.example
 !.env.*.example
-!.env.postgres.example
+!config/host/postgres.env.example
 **/dist/
 coverage/
 **/.pnpm-store/
