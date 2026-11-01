@@ -3,7 +3,6 @@ dist/
 target/
 .DS_Store
 *.local
-.env.local
 .env.*.local
 
 # SDKWork local runtime state
