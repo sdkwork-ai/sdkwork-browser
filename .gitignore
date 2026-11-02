@@ -82,3 +82,7 @@ temp/
 !.env.cloud.staging
 !.env.cloud.demo
 !.env.cloud.production
+
+# Dart/Flutter local tool workspace (never commit)
+.dart_tool/
+**/.dart_tool/
