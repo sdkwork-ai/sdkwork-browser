@@ -126,7 +126,7 @@
   },
   "targets": [
     {
-      "id": "test-noarch-standalone-browser-contracts-tar-gz",
+      "id": "test-noarch-standalone-library-contracts-tar-gz",
       "profile": "library",
       "platform": "test",
       "architecture": "noarch",
