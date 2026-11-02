@@ -69,3 +69,16 @@ temp/
 *.tmp
 *.temp
 .next/
+
+# Per-environment SDKWork materializations are tracked (ENVIRONMENT_SPEC 5.1.7).
+# Local values (` .env`, `.env.local`, `*.bootstrap.local`) stay ignored above.
+!.env.standalone.development
+!.env.standalone.test
+!.env.standalone.staging
+!.env.standalone.demo
+!.env.standalone.production
+!.env.cloud.development
+!.env.cloud.test
+!.env.cloud.staging
+!.env.cloud.demo
+!.env.cloud.production
