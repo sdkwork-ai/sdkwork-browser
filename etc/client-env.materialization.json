@@ -76,6 +76,36 @@
           "iam:self"
         ]
       }
+    },
+    {
+      "id": "sdkwork-browser-flutter-mobile",
+      "root": "apps/sdkwork-browser-flutter-mobile",
+      "format": "flutter",
+      "runtimeTarget": "flutter-android",
+      "bindings": {},
+      "accessToken": {
+        "appId": "sdkwork-browser-flutter-mobile",
+        "tenantId": "100001",
+        "organizationId": "0",
+        "permissionScope": [
+          "iam:self"
+        ]
+      }
+    },
+    {
+      "id": "sdkwork-browser-h5",
+      "root": "apps/sdkwork-browser-h5",
+      "format": "vite",
+      "runtimeTarget": "browser",
+      "bindings": {},
+      "accessToken": {
+        "appId": "sdkwork-browser-h5",
+        "tenantId": "100001",
+        "organizationId": "0",
+        "permissionScope": [
+          "iam:self"
+        ]
+      }
     }
   ]
 }
