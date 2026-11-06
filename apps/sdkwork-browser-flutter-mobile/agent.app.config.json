@@ -22,9 +22,12 @@
     "ownerMode": "tenant",
     "grantMode": "current",
     "platform": "MOBILE",
-    "appId": null,
+    "appId": "sdkwork-browser-flutter-mobile",
     "organizationId": "0",
-    "tenantId": "100001"
+    "tenantId": "100001",
+    "accessTokenPermissionScope": [
+      "iam:self"
+    ]
   },
   "runtime": {
     "family": "mobile",

@@ -22,9 +22,12 @@
     "ownerMode": "tenant",
     "grantMode": "current",
     "platform": "DESKTOP",
-    "appId": null,
+    "appId": "sdkwork-browser-pc",
     "organizationId": "0",
-    "tenantId": "100001"
+    "tenantId": "100001",
+    "accessTokenPermissionScope": [
+      "iam:self"
+    ]
   },
   "runtime": {
     "family": "server",
