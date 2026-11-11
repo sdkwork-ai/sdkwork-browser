@@ -1,12 +1,12 @@
-//! HTTP transport for the browser agent LLM call (explicit opt-in only).
+//! HTTP transport for the browser agent LLM call (the default transport).
 //!
-//! The browser agent reaches the LLM in-process by default through
-//! `sdkwork-llm-spi`'s `LanguageModelPort` contract. This module is the only
-//! place that reads `BROWSER_AGENT_LLM_URL`, and it is reachable only when
-//! `SDKWORK_BROWSER_AGENT_LLM_MODE=http` was validated at startup by
-//! [`crate::llm_runtime::LlmRuntime::from_env`]. MODULE_SPEC.md §4.2 allows this
-//! residual read only with a written reason:
-//! `specs/backend-module-call-boundary.allow.json`.
+//! The completion chain is provided by the gateway's LLM surface. The
+//! in-process port (`sdkwork-llm-spi::LanguageModelPort`) is the explicit
+//! `SDKWORK_BROWSER_AGENT_LLM_MODE=in_process` opt-in, because `sdkwork-llm`
+//! ships no completion provider yet (Phase 2). This module is therefore the
+//! only place that reads `BROWSER_AGENT_LLM_URL`; the read is a recorded
+//! MODULE_SPEC.md §4.2 exception with its reason in
+//! `specs/backend-module-call-boundary.allow.json`, not a migration.
 //!
 //! The HTTP request/response shapes here are the historical wire format of the
 //! browser LLM call and are preserved byte-for-byte: an OpenAI-style

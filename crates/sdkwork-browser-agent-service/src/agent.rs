@@ -107,23 +107,27 @@ pub struct BrowserAgentService {
 }
 
 impl BrowserAgentService {
-    /// Startup constructor: validates the LLM transport configuration and
-    /// fails before the first business request (MODULE_SPEC.md §4.2).
+    /// Startup constructor: when LLM inference is enabled
+    /// (`BROWSER_AGENT_MODE=llm`) the selected transport is validated here, so
+    /// the default HTTP mode fails on boot when its endpoint is missing instead
+    /// of on the first business request (MODULE_SPEC.md §4.2.3). Rules mode
+    /// never calls an LLM, so it must boot without an endpoint.
     pub fn try_new() -> Result<Self, LlmConfigError> {
-        Ok(Self::with_llm_runtime(
-            Self::runtime_mode_from_env(),
-            LlmRuntime::from_env()?,
-        ))
+        let runtime_mode = Self::runtime_mode_from_env();
+        let llm = if runtime_mode.eq_ignore_ascii_case("llm") {
+            LlmRuntime::from_env()?
+        } else {
+            LlmRuntime::lenient_from_env()
+        };
+        Ok(Self::with_llm_runtime(runtime_mode, llm))
     }
 
-    /// In-process constructor with a host-provided `LanguageModelPort`.
-    pub fn with_language_model(
-        provider: Arc<dyn LanguageModelPort>,
-    ) -> Result<Self, LlmConfigError> {
-        Ok(Self::with_llm_runtime(
+    /// Explicit in-process opt-in with a host-provided `LanguageModelPort`.
+    pub fn with_language_model(provider: Arc<dyn LanguageModelPort>) -> Self {
+        Self::with_llm_runtime(
             Self::runtime_mode_from_env(),
-            LlmRuntime::from_env()?.with_language_model(provider),
-        ))
+            LlmRuntime::in_process(provider),
+        )
     }
 
     /// Lenient constructor for registry/test composition. Startup paths use
@@ -414,15 +418,11 @@ impl BrowserAgentService {
     }
 
     fn runtime_metadata(&self) -> Value {
-        let mut metadata = json!({
+        json!({
             "runtimeId": self.runtime_id,
             "runtimeMode": self.runtime_mode,
             "llmEndpointConfigured": self.llm.is_configured(),
-        });
-        if let (Some(error), Some(object)) = (self.llm.config_error(), metadata.as_object_mut()) {
-            object.insert("llmConfigError".into(), json!(error));
-        }
-        metadata
+        })
     }
 
     pub fn runtime_diagnostics(&self, mcp_connector_count: usize) -> Value {
@@ -440,11 +440,11 @@ impl BrowserAgentService {
             return "";
         }
         match self.llm.mode() {
-            LlmMode::InProcess => {
-                " No in-process LanguageModelPort provider is registered in this process; set SDKWORK_BROWSER_AGENT_LLM_MODE=http with an endpoint for HTTP inference."
-            }
             LlmMode::Http => {
-                " The HTTP LLM opt-in is incomplete; check SDKWORK_BROWSER_AGENT_LLM_MODE and its endpoint variable."
+                " LLM inference needs its HTTP endpoint configured at startup; alternatively select the in-process opt-in with a registered provider."
+            }
+            LlmMode::InProcess => {
+                " The in-process LLM opt-in needs a registered LanguageModelPort provider; unset the mode to use the default HTTP transport with an endpoint."
             }
         }
     }
@@ -637,6 +637,44 @@ mod tests {
         BrowserAgentService::with_llm_runtime("llm", runtime)
     }
 
+    /// Serialises tests that read/write the process environment.
+    static ENV_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+    fn env_guard() -> std::sync::MutexGuard<'static, ()> {
+        ENV_LOCK
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
+    }
+
+    /// Restores one environment variable when the test scope ends.
+    struct EnvRestore {
+        name: &'static str,
+        previous: Option<String>,
+    }
+
+    impl EnvRestore {
+        fn set(name: &'static str, value: &str) -> Self {
+            let previous = std::env::var(name).ok();
+            std::env::set_var(name, value);
+            Self { name, previous }
+        }
+
+        fn unset(name: &'static str) -> Self {
+            let previous = std::env::var(name).ok();
+            std::env::remove_var(name);
+            Self { name, previous }
+        }
+    }
+
+    impl Drop for EnvRestore {
+        fn drop(&mut self) {
+            match self.previous.as_deref() {
+                Some(value) => std::env::set_var(self.name, value),
+                None => std::env::remove_var(self.name),
+            }
+        }
+    }
+
     #[test]
     fn summarizes_page_context() {
         let mut tabs = BrowserTabService::new();
@@ -757,30 +795,68 @@ mod tests {
     }
 
     #[test]
-    fn try_new_fails_at_startup_when_the_http_opt_in_lacks_an_endpoint() {
-        let previous_mode = std::env::var("SDKWORK_BROWSER_AGENT_LLM_MODE").ok();
-        let previous_url = std::env::var("BROWSER_AGENT_LLM_URL").ok();
-        std::env::set_var("SDKWORK_BROWSER_AGENT_LLM_MODE", "http");
-        std::env::remove_var("BROWSER_AGENT_LLM_URL");
+    fn default_transport_is_http_and_requires_the_endpoint_at_startup() {
+        let _guard = env_guard();
+        let _llm_mode = EnvRestore::unset("SDKWORK_BROWSER_AGENT_LLM_MODE");
+        let _url = EnvRestore::unset("BROWSER_AGENT_LLM_URL");
+        let _agent_mode = EnvRestore::set("BROWSER_AGENT_MODE", "llm");
 
         let error = match BrowserAgentService::try_new() {
-            Ok(_) => panic!("startup must reject an incomplete opt-in"),
+            Ok(_) => panic!("startup must reject the default http transport without an endpoint"),
             Err(error) => error,
         };
         assert_eq!(error, LlmConfigError::HttpModeMissingUrl);
+    }
 
-        match previous_mode {
-            Some(value) => std::env::set_var("SDKWORK_BROWSER_AGENT_LLM_MODE", value),
-            None => std::env::remove_var("SDKWORK_BROWSER_AGENT_LLM_MODE"),
-        }
-        if let Some(value) = previous_url {
-            std::env::set_var("BROWSER_AGENT_LLM_URL", value);
-        }
+    #[test]
+    fn default_http_transport_boots_when_the_endpoint_is_configured() {
+        let _guard = env_guard();
+        let _llm_mode = EnvRestore::unset("SDKWORK_BROWSER_AGENT_LLM_MODE");
+        let _url = EnvRestore::set("BROWSER_AGENT_LLM_URL", "https://llm.example.test/v1/chat");
+        let _agent_mode = EnvRestore::set("BROWSER_AGENT_MODE", "llm");
+
+        let agent = BrowserAgentService::try_new().expect("default http with endpoint boots");
+        assert_eq!(agent.llm_runtime().mode(), LlmMode::Http);
+        assert!(agent.llm_runtime().is_configured());
+        assert_eq!(agent.llm_runtime().provider_label(), "http");
+    }
+
+    #[test]
+    fn rules_mode_boots_without_an_llm_endpoint_and_keeps_the_http_default() {
+        let _guard = env_guard();
+        let _llm_mode = EnvRestore::unset("SDKWORK_BROWSER_AGENT_LLM_MODE");
+        let _url = EnvRestore::unset("BROWSER_AGENT_LLM_URL");
+        let _agent_mode = EnvRestore::unset("BROWSER_AGENT_MODE");
+
+        let agent = BrowserAgentService::try_new().expect("rules mode boots without an endpoint");
+        assert_eq!(agent.llm_runtime().mode(), LlmMode::Http);
+        assert!(!agent.llm_runtime().is_configured());
+    }
+
+    #[test]
+    fn in_process_transport_is_selected_only_explicitly() {
+        let _guard = env_guard();
+        // Unset mode is http (and proves it by requiring the endpoint).
+        let unset = {
+            let _llm_mode = EnvRestore::unset("SDKWORK_BROWSER_AGENT_LLM_MODE");
+            let _url = EnvRestore::unset("BROWSER_AGENT_LLM_URL");
+            LlmRuntime::from_env().map(|runtime| runtime.mode())
+        };
+        assert!(unset.is_err(), "unset transport mode must not be in-process");
+
+        let _llm_mode = EnvRestore::set("SDKWORK_BROWSER_AGENT_LLM_MODE", "in_process");
+        let _url = EnvRestore::unset("BROWSER_AGENT_LLM_URL");
+        let runtime = LlmRuntime::from_env().expect("explicit in-process needs no endpoint");
+        assert_eq!(runtime.mode(), LlmMode::InProcess);
     }
 
     #[tokio::test]
-    async fn exposes_runtime_mode_metadata() {        std::env::set_var("BROWSER_AGENT_MODE", "llm");
-        let agent = BrowserAgentService::new();
+    async fn exposes_runtime_mode_metadata() {
+        let agent = {
+            let _guard = env_guard();
+            let _agent_mode = EnvRestore::set("BROWSER_AGENT_MODE", "llm");
+            BrowserAgentService::new()
+        };
         assert_eq!(agent.runtime_mode(), "llm");
         let context = agent.build_page_context(None, None, None);
         let response = agent
@@ -794,7 +870,6 @@ mod tests {
             )
             .await;
         assert_eq!(response.data["runtimeMode"], "llm");
-        std::env::remove_var("BROWSER_AGENT_MODE");
     }
 }
 

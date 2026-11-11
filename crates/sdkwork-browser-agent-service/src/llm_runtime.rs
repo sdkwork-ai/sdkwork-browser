@@ -1,26 +1,21 @@
-//! In-process-first LLM runtime for the browser agent.
+//! LLM runtime for the browser agent.
 //!
-//! MODULE_SPEC.md §4.2 requires a backend module to reach a sibling SDKWork
-//! module in-process. The browser agent therefore calls the LLM module through
-//! its own contract crate, `sdkwork-llm-spi`, via
-//! [`LanguageModelPort::generate`] on the shared process — no HTTP hop by
-//! default.
+//! Transport selection is explicit and validated at startup:
 //!
-//! Current state of the sibling contract (recorded, not worked around): the
-//! only completion signature `sdkwork-llm` exposes is
+//! - default (`SDKWORK_BROWSER_AGENT_LLM_MODE` unset) is **`http`**, using
+//!   `BROWSER_AGENT_LLM_URL`. This is a recorded, reviewable exception to
+//!   MODULE_SPEC.md §4.2: the completion chain is provided by the gateway's LLM
+//!   surface, and `sdkwork-llm` has no in-process provider yet (Phase 2), so
+//!   the browser cannot complete in-process today. The exception lives in
+//!   `specs/backend-module-call-boundary.allow.json` with its reason.
+//! - `SDKWORK_BROWSER_AGENT_LLM_MODE=in_process` is the explicit opt-in for the
+//!   in-process port, `sdkwork-llm-spi::LanguageModelPort::generate`. It needs
+//!   a host-injected provider ([`LlmRuntime::in_process`]); without one the
+//!   call fails with an actionable error instead of silently degrading.
 //!
-//! ```text
-//! async fn generate(&self, command: LanguageModelCommand) -> LlmSpiResult<String>;
-//! ```
-//!
-//! and **no crate in `sdkwork-llm` implements `LanguageModelPort`** yet
-//! (`sdkwork-llm-plugin-reference-profiles::ReferenceLlmRuntime` implements the
-//! eleven memory/retrieval ports but not this one). A host that owns an
-//! implementation injects it with [`LlmRuntime::with_language_model`]; without
-//! one, the in-process runtime reports [`LlmRuntime::is_configured`] as
-//! `false` and the agent keeps its rules engine. The legacy HTTP transport is
-//! an explicit opt-in (`SDKWORK_BROWSER_AGENT_LLM_MODE=http`) and is rejected
-//! at startup when `BROWSER_AGENT_LLM_URL` is missing.
+//! Whichever transport is selected is validated at startup when LLM inference
+//! is enabled (`BROWSER_AGENT_MODE=llm`), so a missing endpoint fails on boot
+//! rather than on the first business request (MODULE_SPEC.md §4.2.3).
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -36,6 +31,7 @@ pub const DEFAULT_LLM_TIMEOUT_MS: u64 = 30_000;
 const MIN_LLM_TIMEOUT_MS: u64 = 1_000;
 const MAX_LLM_TIMEOUT_MS: u64 = 120_000;
 const DEFAULT_MODEL: &str = "sdkwork-browser";
+const DEFAULT_LLM_MODE: LlmMode = LlmMode::Http;
 
 const LLM_MODE_ENV: &str = "SDKWORK_BROWSER_AGENT_LLM_MODE";
 const LLM_MODEL_ENV: &str = "BROWSER_AGENT_LLM_MODEL";
@@ -44,9 +40,10 @@ const LLM_TIMEOUT_ENV: &str = "BROWSER_AGENT_LLM_TIMEOUT_MS";
 /// Transport selected for the browser agent LLM call.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum LlmMode {
-    /// Call `sdkwork-llm-spi::LanguageModelPort` in this process (default).
+    /// Call `sdkwork-llm-spi::LanguageModelPort` in this process (explicit
+    /// opt-in; requires a registered provider).
     InProcess,
-    /// Call a sibling/external endpoint over HTTP (explicit opt-in only).
+    /// Call the LLM surface over HTTP (default; requires an endpoint).
     Http,
 }
 
@@ -77,20 +74,15 @@ pub struct LlmRuntimeConfig {
 }
 
 impl LlmRuntimeConfig {
-    /// Resolves configuration from the process environment.
+    /// Resolves configuration from the process environment (strict).
     pub fn from_env() -> Result<Self, LlmConfigError> {
-        Self::resolve(|name| std::env::var(name).ok())
+        Self::resolve(&|name| std::env::var(name).ok())
     }
 
-    fn resolve<F: Fn(&str) -> Option<String>>(get: F) -> Result<Self, LlmConfigError> {
-        let mode_raw = get(LLM_MODE_ENV)
-            .map(|value| value.trim().to_ascii_lowercase())
-            .filter(|value| !value.is_empty())
-            .unwrap_or_else(|| LlmMode::InProcess.as_str().to_string());
-        let mode = LlmMode::parse(&mode_raw)
-            .ok_or_else(|| LlmConfigError::UnsupportedMode { mode: mode_raw })?;
+    fn resolve<F: Fn(&str) -> Option<String>>(get: &F) -> Result<Self, LlmConfigError> {
+        let mode = Self::resolve_mode(get)?;
+        let http_url = llm_http_adapter::configured_url(get);
 
-        let http_url = llm_http_adapter::configured_url(&get);
         if mode == LlmMode::Http {
             let url = http_url.clone().ok_or(LlmConfigError::HttpModeMissingUrl)?;
             if !is_http_url(&url) {
@@ -98,13 +90,58 @@ impl LlmRuntimeConfig {
             }
         }
 
-        let model = get(LLM_MODEL_ENV)
+        Ok(Self {
+            mode,
+            http_url,
+            model: Self::resolve_model(get),
+            timeout: Self::resolve_timeout(get)?,
+        })
+    }
+
+    /// Non-aborting resolution for composition paths that are not startup
+    /// (registry/test wiring). The resolved mode is preserved, so the default
+    /// stays `http` even when its endpoint is missing.
+    fn lenient_resolve<F: Fn(&str) -> Option<String>>(get: &F) -> Self {
+        Self {
+            mode: Self::resolve_mode(get).unwrap_or(DEFAULT_LLM_MODE),
+            http_url: llm_http_adapter::configured_url(get),
+            model: Self::resolve_model(get),
+            timeout: Self::resolve_timeout(get)
+                .unwrap_or_else(|_| Duration::from_millis(DEFAULT_LLM_TIMEOUT_MS)),
+        }
+    }
+
+    /// Configuration of the explicit in-process opt-in: no endpoint is needed.
+    pub fn in_process_from_env() -> Self {
+        Self {
+            mode: LlmMode::InProcess,
+            http_url: None,
+            model: Self::resolve_model(&|name| std::env::var(name).ok()),
+            timeout: Self::resolve_timeout(&|name| std::env::var(name).ok())
+                .unwrap_or_else(|_| Duration::from_millis(DEFAULT_LLM_TIMEOUT_MS)),
+        }
+    }
+
+    fn resolve_mode<F: Fn(&str) -> Option<String>>(get: &F) -> Result<LlmMode, LlmConfigError> {
+        let raw = get(LLM_MODE_ENV)
+            .map(|value| value.trim().to_ascii_lowercase())
+            .filter(|value| !value.is_empty())
+            .unwrap_or_else(|| DEFAULT_LLM_MODE.as_str().to_string());
+        LlmMode::parse(&raw).ok_or(LlmConfigError::UnsupportedMode { mode: raw })
+    }
+
+    fn resolve_model<F: Fn(&str) -> Option<String>>(get: &F) -> String {
+        get(LLM_MODEL_ENV)
             .map(|value| value.trim().to_string())
             .filter(|value| !value.is_empty())
-            .unwrap_or_else(|| DEFAULT_MODEL.to_string());
+            .unwrap_or_else(|| DEFAULT_MODEL.to_string())
+    }
 
-        let timeout = match get(LLM_TIMEOUT_ENV) {
-            None => Duration::from_millis(DEFAULT_LLM_TIMEOUT_MS),
+    fn resolve_timeout<F: Fn(&str) -> Option<String>>(
+        get: &F,
+    ) -> Result<Duration, LlmConfigError> {
+        match get(LLM_TIMEOUT_ENV) {
+            None => Ok(Duration::from_millis(DEFAULT_LLM_TIMEOUT_MS)),
             Some(raw) => {
                 let parsed = raw
                     .trim()
@@ -113,16 +150,9 @@ impl LlmRuntimeConfig {
                 if !(MIN_LLM_TIMEOUT_MS..=MAX_LLM_TIMEOUT_MS).contains(&parsed) {
                     return Err(LlmConfigError::InvalidTimeout { value: raw });
                 }
-                Duration::from_millis(parsed)
+                Ok(Duration::from_millis(parsed))
             }
-        };
-
-        Ok(Self {
-            mode,
-            http_url,
-            model,
-            timeout,
-        })
+        }
     }
 }
 
@@ -133,9 +163,11 @@ fn is_http_url(value: &str) -> bool {
 /// Startup validation failure of the LLM transport configuration.
 #[derive(Clone, Debug, Eq, PartialEq, thiserror::Error)]
 pub enum LlmConfigError {
-    #[error("unsupported LLM mode '{mode}': expected 'in_process' (default) or 'http'")]
+    #[error("unsupported LLM mode '{mode}': expected 'http' (default) or 'in_process' (explicit opt-in)")]
     UnsupportedMode { mode: String },
-    #[error("LLM mode 'http' requires an endpoint configured at startup")]
+    #[error(
+        "LLM transport is 'http' and requires an endpoint configured at startup (or SDKWORK_BROWSER_AGENT_LLM_MODE=in_process with a registered in-process provider)"
+    )]
     HttpModeMissingUrl,
     #[error("the HTTP LLM endpoint must be an http(s) URL: '{url}'")]
     InvalidHttpUrl { url: String },
@@ -155,7 +187,7 @@ pub struct LlmCompletion {
 #[derive(Debug, thiserror::Error)]
 pub enum LlmRuntimeError {
     #[error(
-        "no in-process LLM provider is registered: sdkwork-llm exposes the LanguageModelPort contract but no implementation"
+        "in-process LLM mode is an explicit opt-in but no LanguageModelPort provider is registered: sdkwork-llm has no completion provider yet (Phase 2); unset SDKWORK_BROWSER_AGENT_LLM_MODE and configure the HTTP endpoint, or inject a provider with LlmRuntime::in_process"
     )]
     InProcessProviderUnavailable,
     #[error("in-process LLM call failed: {0}")]
@@ -176,10 +208,10 @@ pub enum LlmRuntimeError {
 
 /// The browser agent's LLM port: one buffered chat completion.
 ///
-/// The call is not an SSE/streamed consumer on either transport — the legacy
-/// HTTP path read a single JSON body, and `sdkwork-llm` has no streaming
-/// completion signature — so this port deliberately exposes one completion
-/// rather than a token stream.
+/// The call is not an SSE/streamed consumer on either transport — the HTTP path
+/// reads a single JSON body, and `sdkwork-llm` has no streaming completion
+/// signature — so this port deliberately exposes one completion rather than a
+/// token stream.
 pub struct LlmRuntime {
     config: LlmRuntimeConfig,
     provider: Option<Arc<dyn LanguageModelPort>>,
@@ -187,7 +219,8 @@ pub struct LlmRuntime {
 }
 
 impl LlmRuntime {
-    /// Startup constructor: fails when the HTTP opt-in lacks configuration.
+    /// Startup constructor: validates the selected transport. The default
+    /// `http` mode fails here when its endpoint is missing.
     pub fn from_env() -> Result<Self, LlmConfigError> {
         Ok(Self {
             config: LlmRuntimeConfig::from_env()?,
@@ -196,9 +229,9 @@ impl LlmRuntime {
         })
     }
 
-    /// Non-startup constructor for registry/test composition: a bad opt-in
-    /// leaves the rules engine active instead of failing construction. Startup
-    /// paths use [`Self::from_env`].
+    /// Non-startup constructor for registry/test composition: a bad opt-in is
+    /// recorded instead of failing construction. Startup paths use
+    /// [`Self::from_env`].
     pub fn lenient_from_env() -> Self {
         match LlmRuntimeConfig::from_env() {
             Ok(config) => Self {
@@ -207,15 +240,19 @@ impl LlmRuntime {
                 config_error: None,
             },
             Err(error) => Self {
-                config: LlmRuntimeConfig {
-                    mode: LlmMode::InProcess,
-                    http_url: None,
-                    model: DEFAULT_MODEL.to_string(),
-                    timeout: Duration::from_millis(DEFAULT_LLM_TIMEOUT_MS),
-                },
+                config: LlmRuntimeConfig::lenient_resolve(&|name| std::env::var(name).ok()),
                 provider: None,
                 config_error: Some(error.to_string()),
             },
+        }
+    }
+
+    /// Explicitly selects the in-process opt-in with a host-provided provider.
+    pub fn in_process(provider: Arc<dyn LanguageModelPort>) -> Self {
+        Self {
+            config: LlmRuntimeConfig::in_process_from_env(),
+            provider: Some(provider),
+            config_error: None,
         }
     }
 
@@ -379,18 +416,51 @@ mod tests {
         }
     }
 
-    #[test]
-    fn defaults_to_in_process_without_http_configuration() {
-        let resolved = LlmRuntimeConfig::resolve(|_| None).expect("default config");
-        assert_eq!(resolved.mode, LlmMode::InProcess);
-        assert!(resolved.http_url.is_none());
-        assert_eq!(resolved.model, "sdkwork-browser");
-        assert_eq!(resolved.timeout, Duration::from_millis(DEFAULT_LLM_TIMEOUT_MS));
+    fn only_url(url: Option<&str>) -> impl Fn(&str) -> Option<String> + '_ {
+        move |name| (name == llm_http_adapter::HTTP_URL_ENV).then(|| url.map(str::to_owned)).flatten()
     }
 
     #[test]
-    fn http_opt_in_requires_an_endpoint_at_startup() {
-        let error = LlmRuntimeConfig::resolve(|name| {
+    fn default_mode_is_http_and_requires_an_endpoint_at_startup() {
+        let error = LlmRuntimeConfig::resolve(&|_| None)
+            .expect_err("default http without endpoint must fail at startup");
+        assert_eq!(error, LlmConfigError::HttpModeMissingUrl);
+    }
+
+    #[test]
+    fn default_mode_is_http_once_the_endpoint_is_configured() {
+        let resolved = LlmRuntimeConfig::resolve(&only_url(Some("https://llm.example.test/v1/chat")))
+            .expect("default http with endpoint");
+        assert_eq!(resolved.mode, LlmMode::Http);
+        assert_eq!(
+            resolved.http_url.as_deref(),
+            Some("https://llm.example.test/v1/chat")
+        );
+        assert_eq!(resolved.model, "sdkwork-browser");
+        assert_eq!(
+            resolved.timeout,
+            Duration::from_millis(DEFAULT_LLM_TIMEOUT_MS)
+        );
+    }
+
+    #[test]
+    fn in_process_mode_is_selected_only_explicitly() {
+        // Unset mode stays http (never silently in-process).
+        let default_error = LlmRuntimeConfig::resolve(&|_| None)
+            .expect_err("unset mode must not select in-process");
+        assert_eq!(default_error, LlmConfigError::HttpModeMissingUrl);
+
+        let explicit = LlmRuntimeConfig::resolve(&|name| {
+            (name == LLM_MODE_ENV).then(|| "in_process".to_string())
+        })
+        .expect("explicit in-process needs no endpoint");
+        assert_eq!(explicit.mode, LlmMode::InProcess);
+        assert!(explicit.http_url.is_none());
+    }
+
+    #[test]
+    fn http_mode_requires_an_endpoint_at_startup() {
+        let error = LlmRuntimeConfig::resolve(&|name| {
             (name == LLM_MODE_ENV).then(|| "http".to_string())
         })
         .expect_err("http without endpoint must fail");
@@ -398,8 +468,8 @@ mod tests {
     }
 
     #[test]
-    fn http_opt_in_rejects_non_http_endpoints() {
-        let error = LlmRuntimeConfig::resolve(|name| match name {
+    fn http_mode_rejects_non_http_endpoints() {
+        let error = LlmRuntimeConfig::resolve(&|name| match name {
             LLM_MODE_ENV => Some("http".to_string()),
             other => (other == llm_http_adapter::HTTP_URL_ENV)
                 .then(|| "llm.example.test".to_string()),
@@ -409,26 +479,8 @@ mod tests {
     }
 
     #[test]
-    fn http_opt_in_accepts_configured_endpoint() {
-        let resolved = LlmRuntimeConfig::resolve(|name| match name {
-            LLM_MODE_ENV => Some("HTTP".to_string()),
-            other => (other == llm_http_adapter::HTTP_URL_ENV)
-                .then(|| "https://llm.example.test/v1/chat".to_string()),
-        })
-        .expect("valid http config");
-        assert_eq!(resolved.mode, LlmMode::Http);
-        assert_eq!(
-            resolved.http_url.as_deref(),
-            Some("https://llm.example.test/v1/chat")
-        );
-        let runtime = LlmRuntime::from_config(resolved, None);
-        assert!(runtime.is_configured());
-        assert_eq!(runtime.provider_label(), "http");
-    }
-
-    #[test]
     fn rejects_unknown_transport_mode() {
-        let error = LlmRuntimeConfig::resolve(|name| {
+        let error = LlmRuntimeConfig::resolve(&|name| {
             (name == LLM_MODE_ENV).then(|| "grpc".to_string())
         })
         .expect_err("unknown mode must fail");
@@ -436,9 +488,17 @@ mod tests {
     }
 
     #[test]
+    fn lenient_resolution_keeps_the_http_default() {
+        let config = LlmRuntimeConfig::lenient_resolve(&|_| None);
+        assert_eq!(config.mode, LlmMode::Http);
+        assert!(config.http_url.is_none());
+    }
+
+    #[test]
     fn in_process_without_a_provider_is_not_configured() {
         let runtime = LlmRuntime::from_config(config(LlmMode::InProcess, None, 1_000), None);
         assert!(!runtime.is_configured());
+        assert_eq!(runtime.provider_label(), "in_process");
     }
 
     #[tokio::test]
@@ -449,7 +509,11 @@ mod tests {
         assert!(runtime.is_configured());
 
         let completion = runtime
-            .complete("how do I read the docs?", "Guide", "https://docs.sdkwork.local/guide")
+            .complete(
+                "how do I read the docs?",
+                "Guide",
+                "https://docs.sdkwork.local/guide",
+            )
             .await
             .expect("in-process completion");
         assert!(completion.content.contains("Navigate"));
@@ -473,12 +537,18 @@ mod tests {
             error,
             LlmRuntimeError::InProcessProviderUnavailable
         ));
+        // The failure must tell the operator what to do.
+        let message = error.to_string();
+        assert!(message.contains("explicit opt-in"));
+        assert!(message.contains("SDKWORK_BROWSER_AGENT_LLM_MODE"));
     }
 
     #[tokio::test]
     async fn in_process_completion_is_bounded_by_the_configured_timeout() {
-        let runtime =
-            LlmRuntime::from_config(config(LlmMode::InProcess, None, 5), Some(Arc::new(NeverAnswers)));
+        let runtime = LlmRuntime::from_config(
+            config(LlmMode::InProcess, None, 5),
+            Some(Arc::new(NeverAnswers)),
+        );
         let error = runtime
             .complete("hello", "Guide", "https://docs.sdkwork.local")
             .await

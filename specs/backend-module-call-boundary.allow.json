@@ -4,7 +4,7 @@
       "file": "crates/sdkwork-browser-agent-service/src/llm_http_adapter.rs",
       "envVar": "BROWSER_AGENT_LLM_URL",
       "module": "llm",
-      "reason": "MODULE_SPEC.md 4.2.3 split-transport opt-in: the browser agent calls the LLM in-process by default through sdkwork-llm-spi's LanguageModelPort contract; sdkwork-llm currently ships no implementation of that port, so the only callable completion path is this legacy HTTP transport. It is reachable only when SDKWORK_BROWSER_AGENT_LLM_MODE=http, that opt-in is validated at startup (LlmRuntime::from_env) and the URL read lives solely in this explicitly named http adapter module. Remove this entry once sdkwork-llm exposes a LanguageModelPort implementation."
+      "reason": "Recorded exception, not a migration: the browser agent's completion chain is provided by the gateway's LLM surface over HTTP, and sdkwork-llm has no in-process provider yet (its LanguageModelPort has zero implementations; the architecture doc schedules provider adapters for Phase 2). So this is the default transport, not the anti-pattern the rule targets: the opt-in is inverted, in-process is the explicit SDKWORK_BROWSER_AGENT_LLM_MODE=in_process path that needs a host-injected provider, and the endpoint read lives only in this explicitly named http adapter module, validated at startup when LLM inference is enabled. Re-evaluate this entry when sdkwork-llm ships a completion provider."
     }
   ]
 }
