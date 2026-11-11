@@ -3,6 +3,9 @@ use sdkwork_browser_mcp_service::McpConnector;
 use sdkwork_browser_tab_service::BrowserTab;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
+use std::sync::Arc;
+
+use crate::llm_runtime::{LanguageModelPort, LlmConfigError, LlmMode, LlmRuntime};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum AgentCapability {
@@ -100,14 +103,47 @@ pub struct BrowserAgentChatStreamResponse {
 pub struct BrowserAgentService {
     runtime_id: &'static str,
     runtime_mode: String,
+    llm: LlmRuntime,
 }
 
 impl BrowserAgentService {
+    /// Startup constructor: validates the LLM transport configuration and
+    /// fails before the first business request (MODULE_SPEC.md §4.2).
+    pub fn try_new() -> Result<Self, LlmConfigError> {
+        Ok(Self::with_llm_runtime(
+            Self::runtime_mode_from_env(),
+            LlmRuntime::from_env()?,
+        ))
+    }
+
+    /// In-process constructor with a host-provided `LanguageModelPort`.
+    pub fn with_language_model(
+        provider: Arc<dyn LanguageModelPort>,
+    ) -> Result<Self, LlmConfigError> {
+        Ok(Self::with_llm_runtime(
+            Self::runtime_mode_from_env(),
+            LlmRuntime::from_env()?.with_language_model(provider),
+        ))
+    }
+
+    /// Lenient constructor for registry/test composition. Startup paths use
+    /// [`Self::try_new`]; here a bad LLM opt-in leaves the rules engine active
+    /// instead of failing construction.
     pub fn new() -> Self {
+        Self::with_llm_runtime(Self::runtime_mode_from_env(), LlmRuntime::lenient_from_env())
+    }
+
+    /// Explicit constructor used by hosts and tests.
+    pub fn with_llm_runtime(runtime_mode: impl Into<String>, llm: LlmRuntime) -> Self {
         Self {
             runtime_id: "sdkwork-agent-runtime",
-            runtime_mode: std::env::var("BROWSER_AGENT_MODE").unwrap_or_else(|_| "rules".into()),
+            runtime_mode: runtime_mode.into(),
+            llm,
         }
+    }
+
+    fn runtime_mode_from_env() -> String {
+        std::env::var("BROWSER_AGENT_MODE").unwrap_or_else(|_| "rules".into())
     }
 
     pub fn runtime_id(&self) -> &str {
@@ -116,6 +152,10 @@ impl BrowserAgentService {
 
     pub fn runtime_mode(&self) -> &str {
         &self.runtime_mode
+    }
+
+    pub fn llm_runtime(&self) -> &LlmRuntime {
+        &self.llm
     }
 
     pub fn capabilities(&self) -> &'static [AgentCapability] {
@@ -221,7 +261,7 @@ impl BrowserAgentService {
         }
     }
 
-    pub fn chat(
+    pub async fn chat(
         &self,
         request: &BrowserAgentChatRequest,
         context: &BrowserPageContext,
@@ -229,7 +269,7 @@ impl BrowserAgentService {
     ) -> BrowserAgentChatResponse {
         let message = request.message.trim();
         if self.should_use_llm() {
-            match crate::llm_runtime::complete_with_llm(message, &context.title, &context.url) {
+            match self.llm.complete(message, &context.title, &context.url).await {
                 Ok(completion) => {
                     return BrowserAgentChatResponse {
                         code: "OK".into(),
@@ -249,7 +289,10 @@ impl BrowserAgentService {
                             if let Some(object) = data.as_object_mut() {
                                 object.insert("llmModel".into(), json!(completion.model));
                                 object.insert("llmEndpoint".into(), json!(completion.endpoint));
-                                object.insert("llmProvider".into(), json!("http"));
+                                object.insert(
+                                    "llmProvider".into(),
+                                    json!(self.llm.provider_label()),
+                                );
                             }
                             data
                         },
@@ -258,7 +301,7 @@ impl BrowserAgentService {
                 Err(error) => {
                     let mut response = self.chat_rules(message, context, connectors);
                     if let Some(object) = response.data.as_object_mut() {
-                        object.insert("llmError".into(), json!(error));
+                        object.insert("llmError".into(), json!(error.to_string()));
                         object.insert("llmFallback".into(), json!(true));
                     }
                     response.reply.content =
@@ -272,8 +315,7 @@ impl BrowserAgentService {
     }
 
     fn should_use_llm(&self) -> bool {
-        self.runtime_mode.eq_ignore_ascii_case("llm")
-            && std::env::var("BROWSER_AGENT_LLM_URL").is_ok()
+        self.runtime_mode.eq_ignore_ascii_case("llm") && self.llm.is_configured()
     }
 
     fn chat_rules(
@@ -372,11 +414,15 @@ impl BrowserAgentService {
     }
 
     fn runtime_metadata(&self) -> Value {
-        json!({
+        let mut metadata = json!({
             "runtimeId": self.runtime_id,
             "runtimeMode": self.runtime_mode,
-            "llmEndpointConfigured": std::env::var("BROWSER_AGENT_LLM_URL").is_ok(),
-        })
+            "llmEndpointConfigured": self.llm.is_configured(),
+        });
+        if let (Some(error), Some(object)) = (self.llm.config_error(), metadata.as_object_mut()) {
+            object.insert("llmConfigError".into(), json!(error));
+        }
+        metadata
     }
 
     pub fn runtime_diagnostics(&self, mcp_connector_count: usize) -> Value {
@@ -385,27 +431,31 @@ impl BrowserAgentService {
             &self.runtime_mode,
             crate::kernel_diagnostics::capability_count(&self.capabilities()),
             mcp_connector_count,
-            std::env::var("BROWSER_AGENT_LLM_URL").is_ok(),
+            self.llm.is_configured().then(|| self.llm.provider_label()),
         )
     }
 
     fn llm_mode_hint(&self) -> &'static str {
-        if !self.runtime_mode.eq_ignore_ascii_case("llm") {
+        if !self.runtime_mode.eq_ignore_ascii_case("llm") || self.llm.is_configured() {
             return "";
         }
-        if std::env::var("BROWSER_AGENT_LLM_URL").is_ok() {
-            return "";
+        match self.llm.mode() {
+            LlmMode::InProcess => {
+                " No in-process LanguageModelPort provider is registered in this process; set SDKWORK_BROWSER_AGENT_LLM_MODE=http with an endpoint for HTTP inference."
+            }
+            LlmMode::Http => {
+                " The HTTP LLM opt-in is incomplete; check SDKWORK_BROWSER_AGENT_LLM_MODE and its endpoint variable."
+            }
         }
-        " Set BROWSER_AGENT_LLM_URL to enable HTTP inference."
     }
 
-    pub fn chat_stream(
+    pub async fn chat_stream(
         &self,
         request: &BrowserAgentChatRequest,
         context: &BrowserPageContext,
         connectors: &[McpConnector],
     ) -> BrowserAgentChatStreamResponse {
-        let response = self.chat(request, context, connectors);
+        let response = self.chat(request, context, connectors).await;
         let chunks = response
             .reply
             .content
@@ -543,7 +593,49 @@ fn topic_for_url(url: &str) -> (&'static str, &'static str) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use async_trait::async_trait;
     use sdkwork_browser_tab_service::BrowserTabService;
+    use sdkwork_llm_spi::{LanguageModelCommand, LlmSpiError, LlmSpiResult};
+    use std::time::Duration;
+
+    enum StubReply {
+        Ok(String),
+        Failed { port: String, message: String },
+    }
+
+    struct StubLanguageModel {
+        reply: StubReply,
+    }
+
+    #[async_trait]
+    impl LanguageModelPort for StubLanguageModel {
+        fn provider_code(&self) -> &str {
+            "stub-language-model"
+        }
+
+        async fn generate(&self, _command: LanguageModelCommand) -> LlmSpiResult<String> {
+            match &self.reply {
+                StubReply::Ok(text) => Ok(text.clone()),
+                StubReply::Failed { port, message } => Err(LlmSpiError::PortOperationFailed {
+                    port: port.clone(),
+                    message: message.clone(),
+                }),
+            }
+        }
+    }
+
+    fn in_process_agent(reply: StubReply) -> BrowserAgentService {
+        let runtime = LlmRuntime::from_config(
+            crate::llm_runtime::LlmRuntimeConfig {
+                mode: LlmMode::InProcess,
+                http_url: None,
+                model: "stub-model".into(),
+                timeout: Duration::from_secs(5),
+            },
+            Some(Arc::new(StubLanguageModel { reply })),
+        );
+        BrowserAgentService::with_llm_runtime("llm", runtime)
+    }
 
     #[test]
     fn summarizes_page_context() {
@@ -571,34 +663,86 @@ mod tests {
         assert!(result.message.contains("Guide"));
     }
 
-    #[test]
-    fn chat_suggests_grouping() {
+    #[tokio::test]
+    async fn chat_suggests_grouping() {
         let agent = BrowserAgentService::new();
         let context = agent.build_page_context(None, None, None);
-        let response = agent.chat(
-            &BrowserAgentChatRequest {
-                message: "group my tabs".into(),
-                tab_id: None,
-            },
-            &context,
-            &[],
-        );
+        let response = agent
+            .chat(
+                &BrowserAgentChatRequest {
+                    message: "group my tabs".into(),
+                    tab_id: None,
+                },
+                &context,
+                &[],
+            )
+            .await;
         assert_eq!(response.reply.action.as_deref(), Some("groupTabs"));
     }
 
-    #[test]
-    fn chat_stream_returns_word_chunks() {
+    #[tokio::test]
+    async fn chat_stream_returns_word_chunks() {
         let agent = BrowserAgentService::new();
         let context = agent.build_page_context(None, None, None);
-        let stream = agent.chat_stream(
-            &BrowserAgentChatRequest {
-                message: "hello agent".into(),
-                tab_id: None,
-            },
-            &context,
-            &[],
-        );
+        let stream = agent
+            .chat_stream(
+                &BrowserAgentChatRequest {
+                    message: "hello agent".into(),
+                    tab_id: None,
+                },
+                &context,
+                &[],
+            )
+            .await;
         assert!(stream.chunks.len() >= 3);
+    }
+
+    #[tokio::test]
+    async fn in_process_language_model_answers_without_http() {
+        let agent = in_process_agent(StubReply::Ok("In-process answer.".into()));
+        let context = agent.build_page_context(None, None, None);
+        let response = agent
+            .chat(
+                &BrowserAgentChatRequest {
+                    message: "hello".into(),
+                    tab_id: None,
+                },
+                &context,
+                &[],
+            )
+            .await;
+        assert_eq!(response.reply.content, "In-process answer.");
+        assert_eq!(response.data["llmProvider"], "in_process");
+        assert_eq!(response.data["llmModel"], "stub-model");
+        assert_eq!(
+            response.data["llmEndpoint"],
+            "in-process:stub-language-model"
+        );
+        assert_eq!(response.data["llmEndpointConfigured"], true);
+    }
+
+    #[tokio::test]
+    async fn in_process_failure_keeps_the_rules_fallback_and_reports_the_error() {
+        let agent = in_process_agent(StubReply::Failed {
+            port: "LanguageModelPort".into(),
+            message: "provider offline".into(),
+        });
+        let context = agent.build_page_context(None, None, None);
+        let response = agent
+            .chat(
+                &BrowserAgentChatRequest {
+                    message: "group my tabs".into(),
+                    tab_id: None,
+                },
+                &context,
+                &[],
+            )
+            .await;
+        assert_eq!(response.reply.action.as_deref(), Some("groupTabs"));
+        assert_eq!(response.data["llmFallback"], true);
+        assert!(response.data["llmError"]
+            .as_str()
+            .is_some_and(|error| error.starts_with("in-process LLM call failed:")));
     }
 
     #[test]
@@ -613,20 +757,44 @@ mod tests {
     }
 
     #[test]
-    fn exposes_runtime_mode_metadata() {
-        std::env::set_var("BROWSER_AGENT_MODE", "llm");
+    fn try_new_fails_at_startup_when_the_http_opt_in_lacks_an_endpoint() {
+        let previous_mode = std::env::var("SDKWORK_BROWSER_AGENT_LLM_MODE").ok();
+        let previous_url = std::env::var("BROWSER_AGENT_LLM_URL").ok();
+        std::env::set_var("SDKWORK_BROWSER_AGENT_LLM_MODE", "http");
+        std::env::remove_var("BROWSER_AGENT_LLM_URL");
+
+        let error = match BrowserAgentService::try_new() {
+            Ok(_) => panic!("startup must reject an incomplete opt-in"),
+            Err(error) => error,
+        };
+        assert_eq!(error, LlmConfigError::HttpModeMissingUrl);
+
+        match previous_mode {
+            Some(value) => std::env::set_var("SDKWORK_BROWSER_AGENT_LLM_MODE", value),
+            None => std::env::remove_var("SDKWORK_BROWSER_AGENT_LLM_MODE"),
+        }
+        if let Some(value) = previous_url {
+            std::env::set_var("BROWSER_AGENT_LLM_URL", value);
+        }
+    }
+
+    #[tokio::test]
+    async fn exposes_runtime_mode_metadata() {        std::env::set_var("BROWSER_AGENT_MODE", "llm");
         let agent = BrowserAgentService::new();
         assert_eq!(agent.runtime_mode(), "llm");
         let context = agent.build_page_context(None, None, None);
-        let response = agent.chat(
-            &BrowserAgentChatRequest {
-                message: "hello".into(),
-                tab_id: None,
-            },
-            &context,
-            &[],
-        );
+        let response = agent
+            .chat(
+                &BrowserAgentChatRequest {
+                    message: "hello".into(),
+                    tab_id: None,
+                },
+                &context,
+                &[],
+            )
+            .await;
         assert_eq!(response.data["runtimeMode"], "llm");
         std::env::remove_var("BROWSER_AGENT_MODE");
     }
 }
+

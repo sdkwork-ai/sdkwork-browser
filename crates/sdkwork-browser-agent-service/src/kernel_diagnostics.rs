@@ -7,10 +7,11 @@ pub fn build_runtime_diagnostics(
     runtime_mode: &str,
     capability_count: usize,
     mcp_connector_count: usize,
-    llm_endpoint_configured: bool,
+    llm_provider: Option<&str>,
 ) -> Value {
+    let llm_configured = llm_provider.is_some();
     let mut degraded_capabilities: Vec<String> = Vec::new();
-    if runtime_mode.eq_ignore_ascii_case("llm") && !llm_endpoint_configured {
+    if runtime_mode.eq_ignore_ascii_case("llm") && !llm_configured {
         degraded_capabilities.push("llm_inference".into());
     }
 
@@ -39,9 +40,13 @@ pub fn build_runtime_diagnostics(
         }),
     ];
 
-    if llm_endpoint_configured {
+    if let Some(provider) = llm_provider {
+        let provider_id = match provider {
+            "http" => "browser-http-llm",
+            _ => "browser-in-process-llm",
+        };
         provider_diagnostics.push(json!({
-            "provider_id": "browser-http-llm",
+            "provider_id": provider_id,
             "provider_family": "model",
             "provider_version": "0.1.0",
             "typed_registered": true,
@@ -76,7 +81,7 @@ mod tests {
 
     #[test]
     fn diagnostics_ready_in_rules_mode() {
-        let payload = build_runtime_diagnostics("sdkwork-agent-runtime", "rules", 6, 2, false);
+        let payload = build_runtime_diagnostics("sdkwork-agent-runtime", "rules", 6, 2, None);
         assert_eq!(payload["state"], "ready");
         assert_eq!(payload["schema_version"], "agent_runtime_diagnostics.v1");
         assert_eq!(payload["provider_count"], 2);
@@ -84,10 +89,21 @@ mod tests {
 
     #[test]
     fn diagnostics_degraded_when_llm_missing_endpoint() {
-        let payload = build_runtime_diagnostics("sdkwork-agent-runtime", "llm", 6, 2, false);
+        let payload = build_runtime_diagnostics("sdkwork-agent-runtime", "llm", 6, 2, None);
         assert_eq!(payload["state"], "degraded");
         assert!(payload["degraded_capabilities"]
             .as_array()
             .is_some_and(|items| items.iter().any(|v| v == "llm_inference")));
+    }
+
+    #[test]
+    fn diagnostics_expose_the_in_process_llm_provider() {
+        let payload =
+            build_runtime_diagnostics("sdkwork-agent-runtime", "llm", 6, 2, Some("in_process"));
+        assert_eq!(payload["state"], "ready");
+        assert_eq!(payload["provider_count"], 3);
+        assert!(payload["provider_diagnostics"]
+            .as_array()
+            .is_some_and(|items| items.iter().any(|v| v["provider_id"] == "browser-in-process-llm")));
     }
 }

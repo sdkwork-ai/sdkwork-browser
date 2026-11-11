@@ -1,0 +1,10 @@
+{
+  "allow": [
+    {
+      "file": "crates/sdkwork-browser-agent-service/src/llm_http_adapter.rs",
+      "envVar": "BROWSER_AGENT_LLM_URL",
+      "module": "llm",
+      "reason": "MODULE_SPEC.md 4.2.3 split-transport opt-in: the browser agent calls the LLM in-process by default through sdkwork-llm-spi's LanguageModelPort contract; sdkwork-llm currently ships no implementation of that port, so the only callable completion path is this legacy HTTP transport. It is reachable only when SDKWORK_BROWSER_AGENT_LLM_MODE=http, that opt-in is validated at startup (LlmRuntime::from_env) and the URL read lives solely in this explicitly named http adapter module. Remove this entry once sdkwork-llm exposes a LanguageModelPort implementation."
+    }
+  ]
+}

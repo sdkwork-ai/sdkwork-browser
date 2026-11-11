@@ -37,7 +37,7 @@ pub enum FactoryError {
     #[error("invalid engine: {0}")]
     InvalidEngine(String),
     #[error(transparent)]
-    Platform(#[from] sdkwork_browser_engine_registry_service::RegistryError),
+    Platform(#[from] sdkwork_browser_platform_service::PlatformError),
 }
 
 #[cfg(test)]

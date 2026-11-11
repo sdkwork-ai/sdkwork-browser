@@ -13,7 +13,13 @@ workspace = true
 serde.workspace = true
 serde_json.workspace = true
 uuid.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
 ureq = { version = "2.12", default-features = false, features = ["json"] }
+sdkwork-llm-spi.workspace = true
 sdkwork-browser-abstraction-service.workspace = true
 sdkwork-browser-mcp-service.workspace = true
 sdkwork-browser-tab-service.workspace = true
+
+[dev-dependencies]
+async-trait.workspace = true

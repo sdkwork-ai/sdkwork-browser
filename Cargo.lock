@@ -3938,11 +3938,15 @@ dependencies = [
 name = "sdkwork-browser-agent-service"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "sdkwork-browser-abstraction-service",
  "sdkwork-browser-mcp-service",
  "sdkwork-browser-tab-service",
+ "sdkwork-llm-spi",
  "serde",
  "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
  "ureq 2.12.1",
  "uuid",
 ]
@@ -4338,6 +4342,16 @@ name = "sdkwork-id-core"
 version = "0.1.0"
 dependencies = [
  "uuid",
+]
+
+[[package]]
+name = "sdkwork-llm-spi"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
 ]
 
 [[package]]

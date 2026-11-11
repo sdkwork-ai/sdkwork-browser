@@ -69,6 +69,11 @@ impl From<PlatformError> for BrowserApiError {
             PlatformError::Engine(error) => {
                 Self::from_result_code(SdkWorkResultCode::InternalError, error.to_string())
             }
+            // Startup-only configuration failure; never produced by a live
+            // request path, and still mapped so a future caller cannot panic.
+            PlatformError::LlmConfig(error) => {
+                Self::from_result_code(SdkWorkResultCode::InternalError, error.to_string())
+            }
         }
     }
 }

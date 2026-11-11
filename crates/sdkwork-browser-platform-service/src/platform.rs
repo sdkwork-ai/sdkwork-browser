@@ -1,7 +1,7 @@
 use sdkwork_browser_agent_service::{
     BrowserAgentChatRequest, BrowserAgentChatResponse, BrowserAgentChatStreamResponse,
     BrowserAgentService, BrowserAiActionRequest, BrowserAiActionResult, BrowserPageContext,
-    TabGroupSuggestion,
+    LlmConfigError, TabGroupSuggestion,
 };
 use sdkwork_browser_engine_api_service::BrowserEngine;
 use sdkwork_browser_engine_api_service::{
@@ -38,12 +38,15 @@ pub struct BrowserPlatform {
 }
 
 impl BrowserPlatform {
-    pub fn bootstrap(config: BrowserConfig) -> Result<Self, RegistryError> {
+    /// Builds the platform, validating the agent LLM transport at startup
+    /// (MODULE_SPEC.md §4.2: an HTTP opt-in must fail here, never on the first
+    /// business request).
+    pub fn bootstrap(config: BrowserConfig) -> Result<Self, PlatformError> {
         Ok(Self {
             config,
             registry: bootstrap_default_registry(),
             tabs: BrowserTabService::new(),
-            agent: BrowserAgentService::new(),
+            agent: BrowserAgentService::try_new()?,
             mcp: BrowserMcpService::new(),
             active_engine: None,
             active_tab_id: None,
@@ -51,7 +54,7 @@ impl BrowserPlatform {
         })
     }
 
-    pub fn with_default_config() -> Result<Self, RegistryError> {
+    pub fn with_default_config() -> Result<Self, PlatformError> {
         Self::bootstrap(BrowserConfig::default())
     }
 
@@ -191,7 +194,8 @@ impl BrowserPlatform {
         let context = self.page_context().await?;
         Ok(self
             .agent
-            .chat(&request, &context, self.mcp.connectors()))
+            .chat(&request, &context, self.mcp.connectors())
+            .await)
     }
 
     pub async fn agent_chat_stream(
@@ -201,7 +205,8 @@ impl BrowserPlatform {
         let context = self.page_context().await?;
         Ok(self
             .agent
-            .chat_stream(&request, &context, self.mcp.connectors()))
+            .chat_stream(&request, &context, self.mcp.connectors())
+            .await)
     }
 
     pub fn auto_group_tabs(&mut self) -> Vec<TabGroupSuggestion> {
@@ -472,6 +477,8 @@ pub enum PlatformError {
     Registry(#[from] RegistryError),
     #[error(transparent)]
     Engine(#[from] sdkwork_browser_engine_api_service::BrowserEngineError),
+    #[error(transparent)]
+    LlmConfig(#[from] LlmConfigError),
 }
 
 #[cfg(test)]
